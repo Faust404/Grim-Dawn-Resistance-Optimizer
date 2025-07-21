@@ -43,7 +43,7 @@ class Components:
             "Chaos Resistance",
         ]
 
-        self.current_resistances = {resistance: 0 for resistance in self.resistances}
+        self.current_resistances = {resistance: 40 for resistance in self.resistances}
 
         # self.current_resistances = {
         #     'Fire Resistance': 20,
