@@ -14,10 +14,11 @@ app = Flask(__name__)
 def index():
     selected_items_with_urls = None
     final_resistances = None
+    input_data = None
     if request.method == 'POST':
 
         char_level = int(request.form.get('char-level', 100))
-        current_resistances = {
+        input_resistances = {
             'Fire Resistance': int(request.form.get('current-fire', 20)),
             'Cold Resistance': int(request.form.get('current-cold', 20)),
             'Lightning Resistance': int(request.form.get('current-lightning', 20)),
@@ -53,9 +54,15 @@ def index():
             elif status == 'off':
                 unavailable_gear_slots[slot] = False
 
+        # Consolidate input data for enabling persistance on the frontend
+        input_data = {}
+        input_data['weapon_template'] = weapon_template
+        input_data.update(input_resistances)
+        input_data.update(unavailable_gear_slots)
+
         components_obj = Components(
             character_level=char_level,
-            current_resistances=current_resistances,
+            current_resistances=input_resistances,
             weapon_template=weapon_template,
             unavailable_gear_slots=unavailable_gear_slots
         )
@@ -76,7 +83,7 @@ def index():
             useful_items=useful_items,
         )
 
-    return render_template("index.html", results=selected_items_with_urls, final_resistances=final_resistances)
+    return render_template("index.html", results=selected_items_with_urls, final_resistances=final_resistances, data=input_data)
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -143,6 +143,47 @@ input:focus, select:focus {
     cursor: not-allowed;
 }
 
+/* Checkbox location locks section */
+.locations {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px;
+    padding: 21px 13px;
+    background: var(--location-bg);
+    border-radius: 8px;
+    border: 1.5px solid var(--location-border);
+}
+.locations label {
+    font-size: 1.06em;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #b8efdc;
+    font-weight: 500;
+}
+input[type="checkbox"] {
+    width: 17px;
+    height: 17px;
+    cursor: pointer;
+    accent-color: var(--accent-green);
+}
+@media (max-width: 600px) {
+    .section, .container, .section.results {
+    padding: 0.8em 0.3em 1.3em 0.3em;
+    font-size: 1em;
+    }
+    .section h2, .section.results h2 {
+    font-size: 1.05em;
+    }
+    .results-table th, .results-table td {
+    padding: 7px 7px;
+    }
+    .locations {
+    padding: 8px;
+    }
+}
+
+/* Results section */
 .section.results {
     margin-top: 2.5em;
     max-width: 700px;
@@ -224,46 +265,7 @@ input:focus, select:focus {
     padding: 2px 4px;
 }
 
-/* Checkbox location locks section */
-.locations {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 12px;
-    padding: 21px 13px;
-    background: var(--location-bg);
-    border-radius: 8px;
-    border: 1.5px solid var(--location-border);
-}
-.locations label {
-    font-size: 1.06em;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    color: #b8efdc;
-    font-weight: 500;
-}
-input[type="checkbox"] {
-    width: 17px;
-    height: 17px;
-    cursor: pointer;
-    accent-color: var(--accent-green);
-}
-@media (max-width: 600px) {
-    .section, .container, .section.results {
-    padding: 0.8em 0.3em 1.3em 0.3em;
-    font-size: 1em;
-    }
-    .section h2, .section.results h2 {
-    font-size: 1.05em;
-    }
-    .results-table th, .results-table td {
-    padding: 7px 7px;
-    }
-    .locations {
-    padding: 8px;
-    }
-}
-
+/* Final resistances section */
 .section.final-resistances {
     margin-top: 2.5em;
     max-width: 700px;
