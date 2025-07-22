@@ -16,6 +16,8 @@ def index():
     final_resistances = None
     gap_resistances = None
     input_data = None
+    unavailable_component_slots = None
+    unavailable_augment_slots = None
     if request.method == 'POST':
 
         char_level = int(request.form.get('char-level', 100))
