@@ -118,10 +118,14 @@ def index():
             useful_augments=useful_augments,
         )
 
+        # Calculate the resistance gaps if any after optimization
+        gap_resistances = {res: max(0, 80 - final_resistances[res]) for res in components_obj.resistance_types}
+
     return render_template(
         "index.html",
         results=selected_items_with_urls,
         final_resistances=final_resistances,
+        gap_resistances=gap_resistances,
         data=input_data,
         component_slots=unavailable_component_slots,
         augment_slots=unavailable_augment_slots
