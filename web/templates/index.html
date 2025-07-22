@@ -122,6 +122,172 @@
         </div>
       </div>
 
+      <div class="factions-section">
+        <h2>⚙️ Player Faction Standing</h2>
+        <div class="dropdown-grid">
+
+          <div class="dropdown-item">
+            <label>Devil's Crossing</label>
+            <select name="standing-crossing">
+              <option value="friendly" {% if data["Devil's Crossing"] == 'friendly' %}selected{% endif %}>Friendly</option>
+              <option value="respected" {% if data["Devil's Crossing"] == 'respected' %}selected{% endif %}>Respected</option>
+              <option value="honored" {% if data["Devil's Crossing"] == 'honored' %}selected{% endif %}>Honored</option>
+              <option value="revered" 
+                {% if data["Devil's Crossing"] == 'revered' or not data["Devil's Crossing"] %}selected{% endif %}
+              >Revered</option>
+            </select>
+          </div>
+
+          <div class="dropdown-item">
+            <label>Rovers</label>
+            <select name="standing-rovers">
+              <option value="friendly" {% if data['Rovers'] == 'friendly' %}selected{% endif %}>Friendly</option>
+              <option value="respected" {% if data['Rovers'] == 'respected' %}selected{% endif %}>Respected</option>
+              <option value="honored" {% if data['Rovers'] == 'honored' %}selected{% endif %}>Honored</option>
+              <option value="revered" 
+                {% if data['Rovers'] == 'revered' or not data['Rovers'] %}selected{% endif %}
+              >Revered</option>
+            </select>
+          </div>
+
+          <div class="dropdown-item">
+            <label>Homestead</label>
+            <select name="standing-homestead">
+              <option value="friendly" {% if data['Homestead'] == 'friendly' %}selected{% endif %}>Friendly</option>
+              <option value="respected" {% if data['Homestead'] == 'respected' %}selected{% endif %}>Respected</option>
+              <option value="honored" {% if data['Homestead'] == 'honored' %}selected{% endif %}>Honored</option>
+              <option value="revered" 
+                {% if data['Homestead'] == 'revered' or not data['Homestead'] %}selected{% endif %}
+              >Revered</option>
+            </select>
+          </div>
+
+          <div class="dropdown-item">
+            <label>Kymon's Chosen</label>
+            <select name="standing-kymon">
+              <option value="friendly" {% if data["Kymon's Chosen"] == 'friendly' %}selected{% endif %}>Friendly</option>
+              <option value="respected" {% if data["Kymon's Chosen"] == 'respected' %}selected{% endif %}>Respected</option>
+              <option value="honored" {% if data["Kymon's Chosen"] == 'honored' %}selected{% endif %}>Honored</option>
+              <option value="revered" 
+                {% if data["Kymon's Chosen"] == 'revered' or not data["Kymon's Chosen"] %}selected{% endif %}
+              >Revered</option>
+            </select>
+          </div>
+
+          <div class="dropdown-item">
+            <label>Death's Vigil</label>
+            <select name="standing-order">
+              <option value="friendly" {% if data["Order of Death's Vigil"] == 'friendly' %}selected{% endif %}>Friendly</option>
+              <option value="respected" {% if data["Order of Death's Vigil"] == 'respected' %}selected{% endif %}>Respected</option>
+              <option value="honored" {% if data["Order of Death's Vigil"] == 'honored' %}selected{% endif %}>Honored</option>
+              <option value="revered" 
+                {% if data["Order of Death's Vigil"] == 'revered' or not data["Order of Death's Vigil"] %}selected{% endif %}
+              >Revered</option>
+            </select>
+          </div>
+
+          <div class="dropdown-item">
+            <label>Black Legion</label>
+            <select name="standing-black-legion">
+              <option value="friendly" {% if data['The Black Legion'] == 'friendly' %}selected{% endif %}>Friendly</option>
+              <option value="respected" {% if data['The Black Legion'] == 'respected' %}selected{% endif %}>Respected</option>
+              <option value="honored" {% if data['The Black Legion'] == 'honored' %}selected{% endif %}>Honored</option>
+              <option value="revered" 
+                {% if data['The Black Legion'] == 'revered' or not data['The Black Legion'] %}selected{% endif %}
+              >Revered</option>
+            </select>
+          </div>
+
+          <div class="dropdown-item">
+            <label>The Outcast</label>
+            <select name="standing-outcast">
+              <option value="friendly" {% if data['The Outcast'] == 'friendly' %}selected{% endif %}>Friendly</option>
+              <option value="respected" {% if data['The Outcast'] == 'respected' %}selected{% endif %}>Respected</option>
+              <option value="honored" {% if data['The Outcast'] == 'honored' %}selected{% endif %}>Honored</option>
+              <option value="revered" 
+                {% if data['The Outcast'] == 'revered' or not data['The Outcast'] %}selected{% endif %}
+              >Revered</option>
+            </select>
+          </div>
+
+          <div class="dropdown-item">
+            <label>Coven of Ugdenbog</label>
+            <select name="standing-coven">
+              <option value="friendly" {% if data['Coven of Ugdenbog'] == 'friendly' %}selected{% endif %}>Friendly</option>
+              <option value="respected" {% if data['Coven of Ugdenbog'] == 'respected' %}selected{% endif %}>Respected</option>
+              <option value="honored" {% if data['Coven of Ugdenbog'] == 'honored' %}selected{% endif %}>Honored</option>
+              <option value="revered" 
+                {% if data['Coven of Ugdenbog'] == 'revered' or not data['Rovers'] %}selected{% endif %}
+              >Revered</option>
+            </select>
+          </div>
+
+          <div class="dropdown-item">
+            <label>Barrowholm</label>
+            <select name="standing-barrowholm">
+              <option value="friendly" {% if data['Barrowholm'] == 'friendly' %}selected{% endif %}>Friendly</option>
+              <option value="respected" {% if data['Barrowholm'] == 'respected' %}selected{% endif %}>Respected</option>
+              <option value="honored" {% if data['Barrowholm'] == 'honored' %}selected{% endif %}>Honored</option>
+              <option value="revered" 
+                {% if data['Barrowholm'] == 'revered' or not data['Barrowholm'] %}selected{% endif %}
+              >Revered</option>
+            </select>
+          </div>
+
+          <div class="dropdown-item">
+            <label>Malmouth</label>
+            <select name="standing-malmouth">
+              <option value="friendly" {% if data['Malmouth Resistance'] == 'friendly' %}selected{% endif %}>Friendly</option>
+              <option value="respected" {% if data['Malmouth Resistance'] == 'respected' %}selected{% endif %}>Respected</option>
+              <option value="honored" {% if data['Malmouth Resistance'] == 'honored' %}selected{% endif %}>Honored</option>
+              <option value="revered" 
+                {% if data['Malmouth Resistance'] == 'revered' or not data['Malmouth Resistance'] %}selected{% endif %}
+              >Revered</option>
+            </select>
+          </div>
+
+          <div class="dropdown-item">
+            <label>Cult of Bysmiel</label>
+            <select name="standing-bysmiel">
+              <option value="friendly" {% if data['Cult of Bysmiel'] == 'friendly' %}selected{% endif %}>Friendly</option>
+              <option value="respected" {% if data['Cult of Bysmiel'] == 'respected' %}selected{% endif %}>Respected</option>
+              <option value="honored" {% if data['Cult of Bysmiel'] == 'honored' %}selected{% endif %}>Honored</option>
+              <option value="revered" 
+                {% if data['Cult of Bysmiel'] == 'revered' or not data['Cult of Bysmiel'] %}selected{% endif %}
+              >Revered</option>
+            </select>
+          </div>
+
+          <div class="dropdown-item">
+            <label>Cult of Dreeg</label>
+            <select name="standing-dreeg">
+              <option value="friendly" {% if data['Cult of Dreeg'] == 'friendly' %}selected{% endif %}>Friendly</option>
+              <option value="respected" {% if data['Cult of Dreeg'] == 'respected' %}selected{% endif %}>Respected</option>
+              <option value="honored" {% if data['Cult of Dreeg'] == 'honored' %}selected{% endif %}>Honored</option>
+              <option value="revered" 
+                {% if data['Cult of Dreeg'] == 'revered' or not data['Cult of Dreeg'] %}selected{% endif %}
+              >Revered</option>
+            </select>
+          </div>
+
+          <div class="dropdown-item">
+            <label>Cult of Solael</label>
+            <select name="standing-solael">
+              <option value="friendly" {% if data['Cult of Solael'] == 'friendly' %}selected{% endif %}>Friendly</option>
+              <option value="respected" {% if data['Cult of Solael'] == 'respected' %}selected{% endif %}>Respected</option>
+              <option value="honored" {% if data['Cult of Solael'] == 'honored' %}selected{% endif %}>Honored</option>
+              <option value="revered" 
+                {% if data['Cult of Solael'] == 'revered' or not data['Cult of Solael'] %}selected{% endif %}
+              >Revered</option>
+            </select>
+          </div>
+
+        </div>
+        <!-- </div> -->
+
+        <br>
+      </div>
+
       <button type="submit" class="optimize-btn">🚀 Run Optimization</button>
     </form>
 

@@ -10,6 +10,38 @@ from grim_dawn_resistance_optimizer.resistance_component_augment_lp_solver impor
 
 app = Flask(__name__)
 
+def filter_augment_db(augment_df: pd.DataFrame, player_faction_standings: dict) -> pd.DataFrame:
+
+    # Mapping
+    standing_levels = {
+        "Friendly": 1,
+        "Respected": 2,
+        "Honored": 3,
+        "Revered": 4
+    }
+
+    # Map player's standings to numeric levels
+    player_standings_num = { faction: standing_levels.get(level.title(), 0) 
+                            for faction, level in player_faction_standings.items() }
+
+
+    # Create numeric required standing column
+    augment_df['RequiredStandingNum'] = augment_df['Required Faction Level'].str.title().map(standing_levels)
+
+    # Define filter function
+    def player_meets_requirement(row):
+        player_level = player_standings_num.get(row['Faction'], 0)
+        required_level = row['RequiredStandingNum']
+        if pd.isna(required_level):
+            return False  # or True, as your policy
+        return player_level >= required_level
+
+    # Filter dataframe based on player standings
+    filtered_augments = augment_df[augment_df.apply(player_meets_requirement, axis=1)]
+
+    return filtered_augments
+
+
 @app.route("/", methods=['GET', 'POST'])
 def index():
     selected_items_with_urls = None
@@ -80,11 +112,28 @@ def index():
             elif status == 'off':
                 unavailable_augment_slots[slot] = False
 
+        player_faction_standings = {
+            "Devil's Crossing": request.form.get('standing-crossing', 'Revered'),
+            'Rovers': request.form.get('standing-rovers', 'Revered'),
+            'Homestead': request.form.get('standing-homestead', 'Revered'),
+            "Kymon's Chosen": request.form.get('standing-kymon', 'Revered'),
+            "Order of Death's Vigil": request.form.get('standing-order', 'Revered'),
+            'The Black Legion': request.form.get('standing-black-legion', 'Revered'),
+            'The Outcast': request.form.get('standing-outcast', 'Revered'),
+            'Coven of Ugdenbog': request.form.get('standing-coven', 'Revered'),
+            'Barrowholm': request.form.get('standing-barrowholm', 'Revered'),
+            'Malmouth Resistance': request.form.get('standing-malmouth', 'Revered'),
+            'Cult of Bysmiel': request.form.get('standing-bysmiel', 'Revered'),
+            'Cult of Dreeg': request.form.get('standing-dreeg', 'Revered'),
+            'Cult of Solael': request.form.get('standing-solael', 'Revered'),
+        }
+
         # Consolidate input data for enabling persistance on the frontend
         input_data = {}
         input_data['Character Level'] = char_level
         input_data['weapon_template'] = weapon_template
         input_data.update(input_resistances)
+        input_data.update(player_faction_standings)
 
         components_obj = Components(
             character_level=char_level,
@@ -104,9 +153,10 @@ def index():
 
         # Remove augments that have no resistance values
         augment_df = pd.read_csv(components_obj.augment_csv_path)
-        useful_augments = augment_df[
-            (augment_df[components_obj.resistance_types] != 0).any(axis=1)
-            & (augment_df['Required Player Level'] <= components_obj.character_level)
+        filtered_augment_df = filter_augment_db(augment_df, player_faction_standings)
+        useful_augments = filtered_augment_df[
+            (filtered_augment_df[components_obj.resistance_types] != 0).any(axis=1)
+            & (filtered_augment_df['Required Player Level'] <= components_obj.character_level)
             ]
         useful_augments = useful_augments.reset_index(drop=True)
 

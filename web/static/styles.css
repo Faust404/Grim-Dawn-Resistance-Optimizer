@@ -81,7 +81,7 @@ body {
     text-shadow: 0 1px 6px #181c2560;
 }
 .form-group {
-    margin-bottom: 24px;
+    margin-bottom: 6px;
 }
 .resistance-grid {
     display: grid;
@@ -181,6 +181,68 @@ input[type="checkbox"] {
     .locations {
     padding: 8px;
     }
+}
+
+.factions-section {
+  background: var(--section-bg);
+  border-radius: 16px;
+  border: 1.5px solid var(--border);
+  box-shadow: var(--card-shadow);
+  padding: 2em 1.5em 1.6em 1.5em;
+  margin-bottom: 24px;
+}
+
+.factions-section h2 {
+  color: var(--accent-green);
+  font-size: 1.25em;
+  font-weight: 600;
+  margin-bottom: 1em;
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  border-left: 5px solid var(--accent-green);
+  padding-left: 0.6em;
+  letter-spacing: 1px;
+  text-shadow: 0 1px 6px #181c2560;
+}
+
+.dropdown-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr); /* 7 equal columns */
+  grid-auto-rows: auto;
+  gap: 16px 24px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.dropdown-item label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: var(--accent-green);    /* use accent green for labels */
+  font-size: 0.9em;
+  height: 1.8em;                 /* fix height to avoid wrapping */
+  line-height: 1.8em;
+  white-space: nowrap;           /* prevent wrapping */
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dropdown-item select {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 2px solid var(--input-border);
+  background-color: var(--input-bg);
+  color: var(--input-fg);
+  font-size: 1em;
+  transition: border-color 0.2s ease;
+}
+
+.dropdown-item select:focus {
+  border-color: var(--accent-green);
+  outline: none;
+  box-shadow: 0 0 6px rgba(48, 196, 124, 0.6);
 }
 
 /* Results section */
