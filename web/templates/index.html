@@ -9,7 +9,7 @@
 <body>
   <div class="container">
     <div class="header">
-      <h1>⚡ Resistance Optimizer</h1>
+      <h1>⚡ Grim Dawn Resistance Optimizer</h1>
       <p>Optimize your gear resistances with advanced algorithms</p>
     </div>
 
@@ -18,10 +18,10 @@
         <h2>⚙️ Weapon Template</h2>
         <div class="form-group">
           <select id="template" name="template">
-            <option value="one-hand-shield" {% if data.weapon_template == 'one-hand-shield' %}selected{% endif %}>One-hand Weapon + Shield</option>
-            <option value="one-hand-offhand" {% if data.weapon_template == 'one-hand-offhand' %}selected{% endif %}>One-hand Weapon + Off-Hand</option>
+            <option value="one-hand-shield" {% if data.weapon_template == 'one-hand-shield' %}selected{% endif %}>One-Handed Weapon + Shield</option>
+            <option value="one-hand-offhand" {% if data.weapon_template == 'one-hand-offhand' %}selected{% endif %}>One-Handed Weapon + Off-Hand</option>
             <option value="ranged-offhand" {% if data.weapon_template == 'ranged-offhand' %}selected{% endif %}>Ranged Weapon + Off-Hand</option>
-            <option value="two-hand" {% if data.weapon_template == 'two-hand' %}selected{% endif %}>Two-hand Weapon</option>
+            <option value="two-hand" {% if data.weapon_template == 'two-hand' %}selected{% endif %}>Two-Handed Weapon</option>
           </select>
         </div>
         <br>
@@ -32,7 +32,7 @@
         <div class="form-group">
           <label for="char-level">Character Level:</label>
           <div class="resistance-input" style="max-width: 210px;">
-            <input type="number" name="char-level" value="100" min="1" max="100">
+            <input type="number" name="char-level" value="{{ data['Character Level'] or 100 }}" min="1" max="100">
           </div>
         </div>
         <div class="form-group">
@@ -82,23 +82,46 @@
         <h2>⚙️ Unavailable Component Slots</h2>
         <div class="form-group">
           <div class="locations">
-            <label><input type="checkbox" name="lock-head" {% if data['Helm'] %}checked{% endif %}> Head</label>
-            <label><input type="checkbox" name="lock-chest" {% if data['Chest'] %}checked{% endif %}> Chest</label>
-            <label><input type="checkbox" name="lock-shoulder" {% if data['Shoulders'] %}checked{% endif %}> Shoulders</label>
-            <label><input type="checkbox" name="lock-hand" {% if data['Gloves'] %}checked{% endif %}> Gloves</label>
-            <label><input type="checkbox" name="lock-foot" {% if data['Boots'] %}checked{% endif %}> Boots</label>
-            <label><input type="checkbox" name="lock-legs" {% if data['Pants'] %}checked{% endif %}> Pants</label>
-            <label><input type="checkbox" name="lock-belt" {% if data['Belt'] %}checked{% endif %}> Belt</label>
-            <label><input type="checkbox" name="lock-amulet" {% if data['Amulet'] %}checked{% endif %}> Amulet</label>
-            <label><input type="checkbox" name="lock-ring1" {% if data['Ring 1'] %}checked{% endif %}> Ring 1</label>
-            <label><input type="checkbox" name="lock-ring2" {% if data['Ring 2'] %}checked{% endif %}> Ring 2</label>
-            <label><input type="checkbox" name="lock-medal" {% if data['Medal'] %}checked{% endif %}> Medal</label>
-            <label><input type="checkbox" name="lock-weapon" {% if data['Weapon'] %}checked{% endif %}> Weapon</label>
-            <label><input type="checkbox" name="lock-shield" {% if data['Shield'] %}checked{% endif %}> Shield</label>
-            <label><input type="checkbox" name="lock-offhand" {% if data['Off-Hand'] %}checked{% endif %}> Off-Hand</label>
+            <label><input type="checkbox" name="component-head" {% if component_slots['Helm'] %}checked{% endif %}> Head</label>
+            <label><input type="checkbox" name="component-chest" {% if component_slots['Chest'] %}checked{% endif %}> Chest</label>
+            <label><input type="checkbox" name="component-shoulder" {% if component_slots['Shoulders'] %}checked{% endif %}> Shoulders</label>
+            <label><input type="checkbox" name="component-hand" {% if component_slots['Gloves'] %}checked{% endif %}> Gloves</label>
+            <label><input type="checkbox" name="component-foot" {% if component_slots['Boots'] %}checked{% endif %}> Boots</label>
+            <label><input type="checkbox" name="component-legs" {% if component_slots['Pants'] %}checked{% endif %}> Pants</label>
+            <label><input type="checkbox" name="component-belt" {% if component_slots['Belt'] %}checked{% endif %}> Belt</label>
+            <label><input type="checkbox" name="component-amulet" {% if component_slots['Amulet'] %}checked{% endif %}> Amulet</label>
+            <label><input type="checkbox" name="component-ring1" {% if component_slots['Ring1'] %}checked{% endif %}> Ring 1</label>
+            <label><input type="checkbox" name="component-ring2" {% if component_slots['Ring2'] %}checked{% endif %}> Ring 2</label>
+            <label><input type="checkbox" name="component-medal" {% if component_slots['Medal'] %}checked{% endif %}> Medal</label>
+            <label><input type="checkbox" name="component-weapon" {% if component_slots['Weapon'] %}checked{% endif %}> Weapon</label>
+            <label><input type="checkbox" name="component-shield" {% if component_slots['Shield'] %}checked{% endif %}> Shield</label>
+            <label><input type="checkbox" name="component-offhand" {% if component_slots['Off-Hand'] %}checked{% endif %}> Off-Hand</label>
           </div>
         </div>
       </div>
+
+      <div class="section">
+        <h2>⚙️ Unavailable Augment Slots</h2>
+        <div class="form-group">
+          <div class="locations">
+            <label><input type="checkbox" name="augment-head" {% if augment_slots['Helm'] %}checked{% endif %}> Head</label>
+            <label><input type="checkbox" name="augment-chest" {% if augment_slots['Chest'] %}checked{% endif %}> Chest</label>
+            <label><input type="checkbox" name="augment-shoulder" {% if augment_slots['Shoulders'] %}checked{% endif %}> Shoulders</label>
+            <label><input type="checkbox" name="augment-hand" {% if augment_slots['Gloves'] %}checked{% endif %}> Gloves</label>
+            <label><input type="checkbox" name="augment-foot" {% if augment_slots['Boots'] %}checked{% endif %}> Boots</label>
+            <label><input type="checkbox" name="augment-legs" {% if augment_slots['Pants'] %}checked{% endif %}> Pants</label>
+            <label><input type="checkbox" name="augment-belt" {% if augment_slots['Belt'] %}checked{% endif %}> Belt</label>
+            <label><input type="checkbox" name="augment-amulet" {% if augment_slots['Amulet'] %}checked{% endif %}> Amulet</label>
+            <label><input type="checkbox" name="augment-ring1" {% if augment_slots['Ring1'] %}checked{% endif %}> Ring 1</label>
+            <label><input type="checkbox" name="augment-ring2" {% if augment_slots['Ring2'] %}checked{% endif %}> Ring 2</label>
+            <label><input type="checkbox" name="augment-medal" {% if augment_slots['Medal'] %}checked{% endif %}> Medal</label>
+            <label><input type="checkbox" name="augment-weapon" {% if augment_slots['Weapon'] %}checked{% endif %}> Weapon</label>
+            <label><input type="checkbox" name="augment-shield" {% if augment_slots['Shield'] %}checked{% endif %}> Shield</label>
+            <label><input type="checkbox" name="augment-offhand" {% if augment_slots['Off-Hand'] %}checked{% endif %}> Off-Hand</label>
+          </div>
+        </div>
+      </div>
+
       <button type="submit" class="optimize-btn">🚀 Run Optimization</button>
     </form>
 
@@ -107,27 +130,46 @@
       <h2>Results</h2>
 
       <table class="results-table">
-        <thead>
-          <tr>
-            <th>Gear Slot</th>
-            <th>Component</th>
-          </tr>
-        </thead>
-        <tbody>
-        {% for slot, component in results.items() %}
-          <tr>
-            <td>{{ slot }}</td>
-            <td>
-              {% if component.Name and component.Url %}
-                <a href="{{ component.Url }}" target="_blank">{{ component.Name }}</a>
+      <thead>
+        <tr>
+          <th>Gear Slot</th>
+          <th>Component</th>
+          <th>Augment</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for slot, values in results.items() %}
+        <tr>
+          <td>{{ slot }}</td>
+          <td>
+            {% if values.Component.Name %}
+              {% if values.Component.Name == "Slot Unavailable" %}
+                <span style="color: #ff6b6b; font-weight: 600;">{{ values.Component.Name }}</span>
+              {% elif values.Component.Url %}
+                <a href="{{ values.Component.Url }}" target="_blank">{{ values.Component.Name }}</a>
               {% else %}
-                <!-- If empty, show a dash or placeholder -->
-                <span style="color: #888;">-</span>
+                {{ values.Component.Name }}
               {% endif %}
-            </td>
-          </tr>
+            {% else %}
+              <span style="color: #888;">-</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if values.Augment.Name %}
+              {% if values.Augment.Name == "Slot Unavailable" %}
+                <span style="color: #ff6b6b; font-weight: 600;">{{ values.Augment.Name }}</span>
+              {% elif values.Augment.Url %}
+                <a href="{{ values.Augment.Url }}" target="_blank">{{ values.Augment.Name }}</a>
+              {% else %}
+                {{ values.Augment.Name }}
+              {% endif %}
+            {% else %}
+              <span style="color: #888;">-</span>
+            {% endif %}
+          </td>
+        </tr>
         {% endfor %}
-        </tbody>
+      </tbody>
     </table>
 
     </div>

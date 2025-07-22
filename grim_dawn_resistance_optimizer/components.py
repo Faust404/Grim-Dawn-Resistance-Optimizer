@@ -7,8 +7,10 @@ class Components:
     all_gear_slots: list[str] = None
     resistance_types: list[str] = None
     free_slots: list[str] = None
-    unavailable_gear_slots: dict[str, int] = None
-    available_gear_slots: list[str] = None
+    unavailable_component_slots: dict[str, int] = None
+    available_component_slots: list[str] = None
+    unavailable_augment_slots: dict[str, int] = None
+    available_augment_slots: list[str] = None
     current_resistances: dict[str, int] = None
     remaining_resistances: dict[str, int] = None
     allocated_slots: dict[str, int] = None
@@ -21,7 +23,8 @@ class Components:
     def __post_init__(self):
         self.set_defaults()
         self.calculate_remaining_resistances()
-        self.check_available_slots()
+        self.available_component_slots = self.check_available_slots(self.unavailable_component_slots)
+        self.available_augment_slots = self.check_available_slots(self.unavailable_augment_slots)
 
 
     def set_defaults(self) -> None:
@@ -44,8 +47,6 @@ class Components:
             "Shield",
         ]
 
-        self.available_gear_slots: list[str] = self.all_gear_slots.copy()
-
         self.resistance_types: list[str] = [
             "Fire Resistance",
             "Cold Resistance",
@@ -59,10 +60,14 @@ class Components:
         ]
 
         if self.current_resistances is None:
-            self.current_resistances = {res: 45 for res in self.resistance_types}
+            self.current_resistances = {res: 40 for res in self.resistance_types}
 
-        if self.unavailable_gear_slots is None:
-            self.unavailable_gear_slots = {slot: False for slot in self.all_gear_slots}
+        if self.unavailable_component_slots is None:
+            self.unavailable_component_slots = {slot: False for slot in self.all_gear_slots}
+
+        if self.unavailable_augment_slots is None:
+            self.unavailable_augment_slots = {slot: False for slot in self.all_gear_slots}
+
 
 
     def calculate_remaining_resistances(self) -> None:
@@ -70,38 +75,41 @@ class Components:
         self.remaining_resistances = {res: max(0, 80 - self.current_resistances[res]) for res in self.resistance_types}
 
 
-    def check_available_slots(self) -> None:
+    def check_available_slots(self, unavailable_gear_slots) -> list[str]:
         """Calculate available gear slots based on the weapon template and blocked slots."""
+        available_gear_slots = self.all_gear_slots.copy()
         if self.weapon_template == "one-hand-shield":
-            self.available_gear_slots.remove("Off-Hand")
-            self.available_gear_slots.remove("Two-Handed")
-            self.available_gear_slots.remove("Ranged")
+            available_gear_slots.remove("Off-Hand")
+            available_gear_slots.remove("Two-Handed")
+            available_gear_slots.remove("Ranged")
         elif self.weapon_template == "one-hand-offhand":
-            self.available_gear_slots.remove("Shield")
-            self.available_gear_slots.remove("Two-Handed")
-            self.available_gear_slots.remove("Ranged")
+            available_gear_slots.remove("Shield")
+            available_gear_slots.remove("Two-Handed")
+            available_gear_slots.remove("Ranged")
         elif self.weapon_template == "two-hand":
-            self.available_gear_slots.remove("One-Handed")
-            self.available_gear_slots.remove("Off-Hand")
-            self.available_gear_slots.remove("Ranged")
-            self.available_gear_slots.remove("Shield")
+            available_gear_slots.remove("One-Handed")
+            available_gear_slots.remove("Off-Hand")
+            available_gear_slots.remove("Ranged")
+            available_gear_slots.remove("Shield")
         elif self.weapon_template == "ranged-offhand":
-            self.available_gear_slots.remove("Shield")
-            self.available_gear_slots.remove("Two-Handed")
-            self.available_gear_slots.remove("One-Handed")
+            available_gear_slots.remove("Shield")
+            available_gear_slots.remove("Two-Handed")
+            available_gear_slots.remove("One-Handed")
         
-        for slot, status in self.unavailable_gear_slots.items():
+        for slot, status in unavailable_gear_slots.items():
             if (status is True) and (slot == "Weapon"):
                 for gear in ["One-Handed", "Two-Handed", "Ranged"]:
                     try:
-                        self.available_gear_slots.remove(gear)
+                        available_gear_slots.remove(gear)
                     except ValueError:
                         pass
             elif status is True:
                 try:
-                    self.available_gear_slots.remove(slot)
+                    available_gear_slots.remove(slot)
                 except ValueError:
                     pass
+        
+        return available_gear_slots
 
 
     def show_slot_allocation(self, slot_status) -> None:

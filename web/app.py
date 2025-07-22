@@ -5,7 +5,7 @@ from icecream import ic
 import sys
 sys.path.append('.')  # Adjust path to import components module
 from grim_dawn_resistance_optimizer.components import Components
-from grim_dawn_resistance_optimizer.resistance_component_lp_solver import optimize_resistances
+from grim_dawn_resistance_optimizer.resistance_component_augment_lp_solver import optimize_resistances
 
 
 app = Flask(__name__)
@@ -31,59 +31,101 @@ def index():
         }
         weapon_template = request.form.get('template')
 
-        # Create a dictionary for unavailable gear slots
-        unavailable_gear_slots = {
-            "Helm" : request.form.get('lock-head', 'off'),
-            "Chest" : request.form.get('lock-chest', 'off'),
-            "Shoulders" : request.form.get('lock-shoulder', 'off'),
-            "Gloves" : request.form.get('lock-hand', 'off'),
-            "Pants" : request.form.get('lock-legs', 'off'),
-            "Boots" : request.form.get('lock-foot', 'off'),
-            "Belt" : request.form.get('lock-belt', 'off'),
-            "Amulet" : request.form.get('lock-amulet', 'off'),
-            "Ring1" : request.form.get('lock-ring1', 'off'),
-            "Ring2" : request.form.get('lock-ring2', 'off'),
-            "Medal" : request.form.get('lock-medal', 'off'),
-            "Weapon" : request.form.get('lock-weapon', 'off'),
-            "Shield" : request.form.get('lock-shield', 'off'),
-            "Off-Hand" : request.form.get('lock-offhand', 'off'),
+        # Create a dictionary for unavailable component slots
+        unavailable_component_slots = {
+            "Helm" : request.form.get('component-head', 'off'),
+            "Chest" : request.form.get('component-chest', 'off'),
+            "Shoulders" : request.form.get('component-shoulder', 'off'),
+            "Gloves" : request.form.get('component-hand', 'off'),
+            "Pants" : request.form.get('component-legs', 'off'),
+            "Boots" : request.form.get('component-foot', 'off'),
+            "Belt" : request.form.get('component-belt', 'off'),
+            "Amulet" : request.form.get('component-amulet', 'off'),
+            "Ring1" : request.form.get('component-ring1', 'off'),
+            "Ring2" : request.form.get('component-ring2', 'off'),
+            "Medal" : request.form.get('component-medal', 'off'),
+            "Weapon" : request.form.get('component-weapon', 'off'),
+            "Shield" : request.form.get('component-shield', 'off'),
+            "Off-Hand" : request.form.get('component-offhand', 'off'),
         }
-        for slot, status in unavailable_gear_slots.items():
+        for slot, status in unavailable_component_slots.items():
             if status == 'on':
-                unavailable_gear_slots[slot] = True
+                unavailable_component_slots[slot] = True
             elif status == 'off':
-                unavailable_gear_slots[slot] = False
+                unavailable_component_slots[slot] = False
+
+        # Create a dictionary for unavailable augment slots
+        unavailable_augment_slots = {
+            "Helm" : request.form.get('augment-head', 'off'),
+            "Chest" : request.form.get('augment-chest', 'off'),
+            "Shoulders" : request.form.get('augment-shoulder', 'off'),
+            "Gloves" : request.form.get('augment-hand', 'off'),
+            "Pants" : request.form.get('augment-legs', 'off'),
+            "Boots" : request.form.get('augment-foot', 'off'),
+            "Belt" : request.form.get('augment-belt', 'off'),
+            "Amulet" : request.form.get('augment-amulet', 'off'),
+            "Ring1" : request.form.get('augment-ring1', 'off'),
+            "Ring2" : request.form.get('augment-ring2', 'off'),
+            "Medal" : request.form.get('augment-medal', 'off'),
+            "Weapon" : request.form.get('augment-weapon', 'off'),
+            "Shield" : request.form.get('augment-shield', 'off'),
+            "Off-Hand" : request.form.get('augment-offhand', 'off'),
+        }
+        for slot, status in unavailable_augment_slots.items():
+            if status == 'on':
+                unavailable_augment_slots[slot] = True
+            elif status == 'off':
+                unavailable_augment_slots[slot] = False
 
         # Consolidate input data for enabling persistance on the frontend
         input_data = {}
+        input_data['Character Level'] = char_level
         input_data['weapon_template'] = weapon_template
         input_data.update(input_resistances)
-        input_data.update(unavailable_gear_slots)
 
         components_obj = Components(
             character_level=char_level,
             current_resistances=input_resistances,
             weapon_template=weapon_template,
-            unavailable_gear_slots=unavailable_gear_slots
+            unavailable_component_slots=unavailable_component_slots,
+            unavailable_augment_slots=unavailable_augment_slots
         )
 
+        # Remove components that have no resistance values
         component_df = pd.read_csv(components_obj.component_csv_path)
-        # Remove items that have no resistance values
-        useful_items = component_df[
+        useful_components = component_df[
             (component_df[components_obj.resistance_types] != 0).any(axis=1)
-            & (component_df['Required Player Level'] <= char_level)
+            & (component_df['Required Player Level'] <= components_obj.character_level)
             ]
-        useful_items = useful_items.reset_index(drop=True)
+        useful_components = useful_components.reset_index(drop=True)
+
+        # Remove augments that have no resistance values
+        augment_df = pd.read_csv(components_obj.augment_csv_path)
+        useful_augments = augment_df[
+            (augment_df[components_obj.resistance_types] != 0).any(axis=1)
+            & (augment_df['Required Player Level'] <= components_obj.character_level)
+            ]
+        useful_augments = useful_augments.reset_index(drop=True)
 
         selected_items_with_urls, final_resistances = optimize_resistances(
             current_resistances=components_obj.current_resistances,
             remaining_resistances=components_obj.remaining_resistances,
             resistance_types=components_obj.resistance_types,
-            slots=components_obj.available_gear_slots,
-            useful_items=useful_items,
+            weapon_template=components_obj.weapon_template,
+            available_component_slots=components_obj.available_component_slots,
+            available_augment_slots=components_obj.available_augment_slots,
+            useful_components=useful_components,
+            useful_augments=useful_augments,
         )
 
-    return render_template("index.html", results=selected_items_with_urls, final_resistances=final_resistances, data=input_data)
+    return render_template(
+        "index.html",
+        results=selected_items_with_urls,
+        final_resistances=final_resistances,
+        data=input_data,
+        component_slots=unavailable_component_slots,
+        augment_slots=unavailable_augment_slots
+    )
 
 if __name__ == "__main__":
     app.run(debug=True)
