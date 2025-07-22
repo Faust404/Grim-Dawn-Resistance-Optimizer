@@ -183,6 +183,7 @@
           <tr>
             <th>Type</th>
             <th>Value</th>
+            <th>Deficit</th>
           </tr>
         </thead>
         <tbody>
@@ -190,13 +191,24 @@
           <tr>
             <td>{{ res }}</td>
             <td>
-              <span class="res-val 
+              <span class="res-val
                 {% if val >= 80 %}success
-                {% elif val >= 50 %}warning
+                {% elif val >= 60 %}warning
                 {% else %}danger
                 {% endif %}">
                 {{ val }}%
               </span>
+            </td>
+            <td>
+              {% set gap_resistance = gap_resistances.get(res) %}
+                <span class="res-val
+                  {% if gap_resistance == 0 %}success
+                  {% elif 0 < gap_resistance <= 20 %}warning
+                  {% elif gap_resistance >= 20 %}danger
+                  {% else %} 
+                  {% endif %}">
+                  {{ gap_resistance }}%
+                </span>
             </td>
           </tr>
           {% endfor %}
