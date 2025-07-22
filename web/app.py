@@ -14,6 +14,7 @@ app = Flask(__name__)
 def index():
     selected_items_with_urls = None
     final_resistances = None
+    gap_resistances = None
     input_data = None
     if request.method == 'POST':
 
