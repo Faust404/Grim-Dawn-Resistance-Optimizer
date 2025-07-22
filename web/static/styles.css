@@ -149,100 +149,117 @@ input:focus, select:focus {
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
     gap: 12px;
     padding: 21px 13px;
-    background: var(--location-bg);
+    background: var(--location-bg);          /* dark container color */
     border-radius: 8px;
-    border: 1.5px solid var(--location-border);
+    border: 1.5px solid var(--location-border); /* subtle dark border */
+    box-shadow: 0 2px 10px 0 rgba(44,70,92,0.15); /* soft shadow for subtle depth */
 }
 .locations label {
     font-size: 1.06em;
     display: flex;
     align-items: center;
     gap: 6px;
-    color: #b8efdc;
+    color: var(--input-fg);                   /* light foreground color */
     font-weight: 500;
+    user-select: none;                        /* prevent text selection on checkbox click */
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+.locations label:hover {
+    color: var(--accent-green);              /* subtle green highlight on hover */
 }
 input[type="checkbox"] {
     width: 17px;
     height: 17px;
     cursor: pointer;
-    accent-color: var(--accent-green);
+    accent-color: var(--accent-green);       /* green accent, fits theme */
+    border-radius: 4px;
+    box-shadow: 0 0 4px rgba(111,213,159,0.25);
+    transition: box-shadow 0.2s ease;
 }
+input[type="checkbox"]:focus-visible {
+    outline-offset: 2px;
+    outline: 2px solid var(--accent-green);
+    box-shadow: 0 0 6px var(--accent-green);
+}
+/* Responsive adjustments */
 @media (max-width: 600px) {
     .section, .container, .section.results {
-    padding: 0.8em 0.3em 1.3em 0.3em;
-    font-size: 1em;
+        padding: 0.8em 0.3em 1.3em 0.3em;
+        font-size: 1em;
     }
     .section h2, .section.results h2 {
-    font-size: 1.05em;
+        font-size: 1.05em;
     }
     .results-table th, .results-table td {
-    padding: 7px 7px;
+        padding: 7px 7px;
     }
     .locations {
-    padding: 8px;
+        padding: 8px;
     }
 }
 
+
 .factions-section {
-  background: var(--section-bg);
-  border-radius: 16px;
-  border: 1.5px solid var(--border);
-  box-shadow: var(--card-shadow);
-  padding: 2em 1.5em 1.6em 1.5em;
-  margin-bottom: 24px;
-}
+    background: var(--section-bg);
+    border-radius: 16px;
+    border: 1.5px solid var(--border);
+    box-shadow: var(--card-shadow);
+    padding: 2em 1.5em 1.6em 1.5em;
+    margin-bottom: 24px;
+    }
 
 .factions-section h2 {
-  color: var(--accent-green);
-  font-size: 1.25em;
-  font-weight: 600;
-  margin-bottom: 1em;
-  display: flex;
-  align-items: center;
-  gap: 0.5em;
-  border-left: 5px solid var(--accent-green);
-  padding-left: 0.6em;
-  letter-spacing: 1px;
-  text-shadow: 0 1px 6px #181c2560;
+    color: var(--accent-green);
+    font-size: 1.25em;
+    font-weight: 600;
+    margin-bottom: 1em;
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    border-left: 5px solid var(--accent-green);
+    padding-left: 0.6em;
+    letter-spacing: 1px;
+    text-shadow: 0 1px 6px #181c2560;
 }
 
 .dropdown-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr); /* 7 equal columns */
-  grid-auto-rows: auto;
-  gap: 16px 24px;
-  max-width: 1100px;
-  margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr); /* 7 equal columns */
+    grid-auto-rows: auto;
+    gap: 16px 24px;
+    max-width: 1100px;
+    margin: 0 auto;
 }
 
 .dropdown-item label {
-  display: block;
-  margin-bottom: 6px;
-  font-weight: 600;
-  color: var(--accent-green);    /* use accent green for labels */
-  font-size: 0.9em;
-  height: 1.8em;                 /* fix height to avoid wrapping */
-  line-height: 1.8em;
-  white-space: nowrap;           /* prevent wrapping */
-  overflow: hidden;
-  text-overflow: ellipsis;
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: var(--accent-green);    /* use accent green for labels */
+    font-size: 0.9em;
+    height: 1.8em;                 /* fix height to avoid wrapping */
+    line-height: 1.8em;
+    white-space: nowrap;           /* prevent wrapping */
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .dropdown-item select {
-  width: 100%;
-  padding: 8px 10px;
-  border-radius: 6px;
-  border: 2px solid var(--input-border);
-  background-color: var(--input-bg);
-  color: var(--input-fg);
-  font-size: 1em;
-  transition: border-color 0.2s ease;
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 2px solid var(--input-border);
+    background-color: var(--input-bg);
+    color: var(--input-fg);
+    font-size: 1em;
+    transition: border-color 0.2s ease;
 }
 
 .dropdown-item select:focus {
-  border-color: var(--accent-green);
-  outline: none;
-  box-shadow: 0 0 6px rgba(48, 196, 124, 0.6);
+    border-color: var(--accent-green);
+    outline: none;
+    box-shadow: 0 0 6px rgba(48, 196, 124, 0.6);
 }
 
 /* Results section */
