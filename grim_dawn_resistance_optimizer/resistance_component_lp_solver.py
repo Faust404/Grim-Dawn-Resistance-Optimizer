@@ -2,30 +2,34 @@ import pandas as pd
 import pulp
 from icecream import ic
 
-from components import Components
+from grim_dawn_resistance_optimizer.components import Components
+# from components import Components
 
-if __name__ == "__main__":
-    components_obj = Components()
-    df = pd.read_csv(components_obj.component_csv_path)
-    # df = pd.read_csv("augment_data.csv")
+components_obj = Components()
 
-    current_resistances = components_obj.current_resistances
-    res_types = components_obj.resistances
-    slots = components_obj.gear_slots
-    remaining_needed = components_obj.needed_resistances
+def generate_item_urls(selected_items, component_df) -> dict[str, dict[str, str]]:
 
-    blocked_slots = ['Ring1', 'Ring2']  # Slots that should not be used in the optimization
-    for blocked_slot in blocked_slots:
-        slots.remove(blocked_slot)
+    selected_items_with_urls = {key: {"Name": "", "Url": ""} for key in selected_items.keys()}
+    for slot, item in selected_items.items():
+        if item is None:
+            continue
 
-    # Remove items that have no resistance values
-    useful_items = df[
-        (df[res_types] != 0).any(axis=1)
-        & (df['Required Player Level'] <= components_obj.character_level)
-        ]
-    useful_items = useful_items.reset_index(drop=True)
+        item_info = component_df[component_df['Item'] == item]
+        item_id = int(item_info["ID"].iloc[0])
+        url = f"https://www.grimtools.com/db/items/{item_id}"
+        selected_items_with_urls[slot]["Name"] = item
+        selected_items_with_urls[slot]["Url"] = url
+    
+    return selected_items_with_urls
 
-    ic(useful_items.shape[0])
+
+def optimize_resistances(
+        current_resistances: dict[str, int],
+        remaining_resistances: dict[str, int],
+        resistance_types: list[str],
+        slots: list[str],
+        useful_items: pd.DataFrame,
+) -> None:
 
     # Create the problem - now maximizing resistance achievement
     prob = pulp.LpProblem("Multi_Objective_Resistance_Optimization", pulp.LpMaximize)
@@ -40,7 +44,7 @@ if __name__ == "__main__":
 
     # Additional variables for resistance achievement tracking
     resistance_achieved = {}
-    for resistance in res_types:
+    for resistance in resistance_types:
         resistance_achieved[resistance] = pulp.LpVariable(f"Achieved_{resistance}", lowBound=0)
 
     # Multi-objective function with weighted priorities
@@ -51,9 +55,9 @@ if __name__ == "__main__":
 
     # Primary objective: Maximize resistance achievement while minimizing items
     resistance_objectives = []
-    for resistance in res_types:
+    for resistance in resistance_types:
         # Reward achieving the full target (60 points needed)
-        needed = remaining_needed[resistance]
+        needed = remaining_resistances[resistance]
         if needed > 0:
             # Use min function to cap at target - this rewards reaching exactly the target
             resistance_objectives.append(resistance_achieved[resistance])
@@ -88,8 +92,8 @@ if __name__ == "__main__":
             prob += pulp.lpSum([item_slot_vars[item_slot] for item_slot in items_for_slot]) <= 1
 
     # Constraint: Link resistance achieved variables to actual resistance gained
-    for resistance in res_types:
-        needed = remaining_needed[resistance]
+    for resistance in resistance_types:
+        needed = remaining_resistances[resistance]
         if needed > 0:
             resistance_sum = []
             for i, item in useful_items.iterrows():
@@ -112,8 +116,6 @@ if __name__ == "__main__":
 
     if status == 'Optimal' or status == 'Infeasible':
         selected_items = {slot: None for slot in slots}
-        gear_resistances = {r: 0 for r in res_types}
-        final_resistances = current_resistances.copy()
         
         for i, item in useful_items.iterrows():
             allowed_gear_slots = [slot for slot in slots if item[slot]]
@@ -122,9 +124,35 @@ if __name__ == "__main__":
                 if (i, slot) in item_slot_vars and item_slot_vars[(i, slot)].varValue == 1:
                     # selected_items[gear_slots[i]] = item['Item']
                     selected_items[slot] = item['Item']
-                    for res in res_types:
+                    for res in resistance_types:
                         current_resistances[res] += item[res]
+        
+        selected_items_with_urls = generate_item_urls(selected_items, useful_items)
+        return selected_items_with_urls, current_resistances
 
-        components_obj.show_slot_allocation(selected_items)
-        ic(current_resistances)
-        components_obj.calculate_penalty(current_resistances)
+
+if __name__ == "__main__":
+    df = pd.read_csv("data/component_data.csv")
+    # df = pd.read_csv("augment_data.csv")
+
+    # components_obj = Components()
+
+    # current_resistances = {res: 30 for res in components_obj.resistance_types}
+    # components_obj = Components(current_resistances=current_resistances)
+
+    # Remove items that have no resistance values
+    useful_items = df[
+        (df[components_obj.resistance_types] != 0).any(axis=1)
+        & (df['Required Player Level'] <= components_obj.character_level)
+        ]
+    useful_items = useful_items.reset_index(drop=True)
+
+    ic(useful_items.shape[0])
+
+    optimize_resistances(
+        components_obj.current_resistances,
+        components_obj.remaining_resistances,
+        components_obj.resistance_types,
+        components_obj.available_gear_slots,
+        useful_items
+    )

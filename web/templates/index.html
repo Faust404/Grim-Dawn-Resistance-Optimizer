@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grim Dawn Resistance Optimizer</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>⚡ Resistance Optimizer</h1>
+      <p>Optimize your gear resistances with advanced algorithms</p>
+    </div>
+    <form method="post">
+      <div class="section">
+        <h2>⚙️ Weapon Template</h2>
+        <div class="form-group">
+          <select id="template" name="template">
+            <option value="one-hand-shield">One-hand Weapon + Shield</option>
+            <option value="one-hand-offhand">One-hand Weapon + Off-hand</option>
+            <option value="ranged-offhand">Ranged Weapon + Off-hand</option>
+            <option value="two-hand">Two-hand Weapon</option>
+          </select>
+        </div>
+        <br>
+      </div>
+      <div class="section">
+        <h2>⚙️ Configuration</h2>
+        <div class="form-group">
+          <label for="char-level">Character Level:</label>
+          <div class="resistance-input" style="max-width: 210px;">
+            <input type="number" name="char-level" value="100" min="1" max="100">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Current Resistances:</label>
+          <div class="resistance-grid">
+            <div class="resistance-input">
+              <label>Fire:</label>
+              <input type="number" name="current-fire" value="40" min="0">
+            </div>
+            <div class="resistance-input">
+              <label>Cold:</label>
+              <input type="number" name="current-cold" value="40" min="0">
+            </div>
+            <div class="resistance-input">
+              <label>Lightning:</label>
+              <input type="number" name="current-lightning" value="40" min="0">
+            </div>
+            <div class="resistance-input">
+              <label>Poison & Acid:</label>
+              <input type="number" name="current-poison" value="40" min="0">
+            </div>
+            <div class="resistance-input">
+              <label>Pierce:</label>
+              <input type="number" name="current-pierce" value="40" min="0">
+            </div>
+            <div class="resistance-input">
+              <label>Bleeding:</label>
+              <input type="number" name="current-bleeding" value="40" min="0">
+            </div>
+            <div class="resistance-input">
+              <label>Vitality:</label>
+              <input type="number" name="current-vitality" value="40" min="0">
+            </div>
+            <div class="resistance-input">
+              <label>Aether:</label>
+              <input type="number" name="current-aether" value="40" min="0">
+            </div>
+            <div class="resistance-input">
+              <label>Chaos:</label>
+              <input type="number" name="current-chaos" value="40" min="0">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="section">
+        <h2>⚙️ Unavailable Component Slots</h2>
+        <div class="form-group">
+          <div class="locations">
+            <label><input type="checkbox" name="lock-head"> Head</label>
+            <label><input type="checkbox" name="lock-chest"> Chest</label>
+            <label><input type="checkbox" name="lock-shoulder"> Shoulders</label>
+            <label><input type="checkbox" name="lock-hand"> Gloves</label>
+            <label><input type="checkbox" name="lock-foot"> Boots</label>
+            <label><input type="checkbox" name="lock-legs"> Pants</label>
+            <label><input type="checkbox" name="lock-belt"> Belt</label>
+            <label><input type="checkbox" name="lock-amulet"> Amulet</label>
+            <label><input type="checkbox" name="lock-ring1"> Ring 1</label>
+            <label><input type="checkbox" name="lock-ring2"> Ring 2</label>
+            <label><input type="checkbox" name="lock-medal"> Medal</label>
+            <label><input type="checkbox" name="lock-weapon"> Weapon</label>
+            <label><input type="checkbox" name="lock-shield"> Shield</label>
+            <label><input type="checkbox" name="lock-offhand"> Off-Hand</label>
+          </div>
+        </div>
+      </div>
+      <button type="submit" class="optimize-btn">🚀 Run Optimization</button>
+    </form>
+
+    {% if results %}
+    <div class="section results">
+      <h2>Results</h2>
+
+      <table class="results-table">
+        <thead>
+          <tr>
+            <th>Gear Slot</th>
+            <th>Component</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for slot, component in results.items() %}
+          <tr>
+            <td>{{ slot }}</td>
+            <td>
+              {% if component.Name and component.Url %}
+                <a href="{{ component.Url }}" target="_blank">{{ component.Name }}</a>
+              {% else %}
+                <!-- If empty, show a dash or placeholder -->
+                <span style="color: #888;">-</span>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    </div>
+    {% endif %}
+
+    {% if final_resistances %}
+    <div class="section final-resistances">
+      <h2>Final Resistances</h2>
+      <table class="resistances-table">
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for res, val in final_resistances.items() %}
+          <tr>
+            <td>{{ res }}</td>
+            <td>
+              <span class="res-val 
+                {% if val >= 80 %}success
+                {% elif val >= 50 %}warning
+                {% else %}danger
+                {% endif %}">
+                {{ val }}%
+              </span>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+
+  </div>
+</body>
+</html>
