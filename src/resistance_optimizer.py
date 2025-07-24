@@ -30,6 +30,7 @@ class ResistanceOptimizer:
 
 
     def __post_init__(self):
+        """Post Init function to perform certain operations on object creation."""
         self.set_defaults()
         self.calculate_remaining_resistances()
         self.filter_useful_components_augments()
@@ -86,6 +87,7 @@ class ResistanceOptimizer:
 
 
     def filter_useful_components_augments(self) -> None:
+        """Filter out useful components and augments based on character level and player faction standings."""
         # Load the component and augment databases
         component_df: pd.DataFrame = pd.read_csv(self.component_csv_path)
         augment_df: pd.DataFrame = pd.read_csv(self.augment_csv_path)
@@ -107,9 +109,17 @@ class ResistanceOptimizer:
         self.useful_augments = self.useful_augments.reset_index(drop=True)
 
 
-    def check_available_slots(self, unavailable_gear_slots) -> list[str]:
-        """Calculate available gear slots based on the weapon template and blocked slots."""
-        available_gear_slots = self.all_gear_slots.copy()
+    def check_available_slots(self, unavailable_gear_slots: dict[str, bool]) -> list[str]:
+        """Calculate available gear slots based on the weapon template and blocked slots.
+
+        Args:
+            unavailable_gear_slots (dict[str, bool]): Dictionary containing availability info
+                                                        of each gear slot denoted by True/False.
+
+        Returns:
+            list[str]: List of available gear slots based on weapon template as well as given unavailability.
+        """
+        available_gear_slots: list[str] = self.all_gear_slots.copy()
         if self.weapon_template == "one-hand-shield":
             available_gear_slots.remove("Off-Hand")
             available_gear_slots.remove("Two-Handed")
@@ -144,11 +154,16 @@ class ResistanceOptimizer:
         return available_gear_slots
 
 
-    def filter_augment_db(
-            self,
-            augment_df: pd.DataFrame,
-    ) -> pd.DataFrame:
-        # Mapping
+    def filter_augment_db(self, augment_df: pd.DataFrame) -> pd.DataFrame:
+        """Filter augment database based on player faction standings.
+
+        Args:
+            augment_df (pd.DataFrame): Dataframe containing all augment info.
+
+        Returns:
+            pd.DataFrame: Augment db dataframe filtered by player faction standings.
+        """
+        # Mapping of faction standings from str to int
         standing_levels: dict[str, int] = {
             "Friendly": 1,
             "Respected": 2,
@@ -160,14 +175,13 @@ class ResistanceOptimizer:
         player_standings_num: dict[str, int] = { faction: standing_levels.get(level.title(), 0) 
                                 for faction, level in self.player_faction_standings.items() }
 
-
         # Create numeric required standing column
         augment_df['RequiredStandingNum'] = augment_df['Required Faction Level'].str.title().map(standing_levels)
 
         # Define filter function
         def player_meets_requirement(row):
-            player_level = player_standings_num.get(row['Faction'], 0)
-            required_level = row['RequiredStandingNum']
+            player_level: int = player_standings_num.get(row['Faction'], 0)
+            required_level: int = row['RequiredStandingNum']
             if pd.isna(required_level):
                 return False  # or True, as your policy
             return player_level >= required_level
@@ -178,24 +192,38 @@ class ResistanceOptimizer:
         return filtered_augments
 
 
-    def generate_item_urls(self, selected_items, component_df, augment_df) -> dict[str, dict[str, str]]:
+    def generate_item_urls(
+            self,
+            selected_items: dict[str, dict[str, str]],
+            component_df: pd.DataFrame,
+            augment_df: pd.DataFrame
+        ) -> dict[str, dict[str, dict[str, str]]]:
+        """Grab item URLs based on item name for both components and augments.
 
-        combined_df = pd.concat([component_df, augment_df], ignore_index=True)
+        Args:
+            selected_items (dict[str, dict[str, str]]): Dictionary containing names of selected components and augments.
+            component_df (pd.DataFrame): Dataframe containing info of useful components.
+            augment_df (pd.DataFrame): Dataframe containing info of useful augments.
+
+        Returns:
+            dict[str, dict[str, dict[str, str]]]: Dictionary containing names and urls for selected components and augments.
+        """
+        combined_df: pd.DataFrame = pd.concat([component_df, augment_df], ignore_index=True)
 
         def get_item_url(name: str) -> str:
             if not name:
                 return ""
-            item_info = combined_df[combined_df['Item'] == name]
+            item_info: pd.Series = combined_df[combined_df['Item'] == name]
             if not item_info.empty:
-                item_id = int(item_info["ID"].iloc[0])
+                item_id: int = int(item_info["ID"].iloc[0])
                 return f"https://www.grimtools.com/db/items/{item_id}"
             else:
                 return ""
 
-        selected_items_with_urls = {}
+        selected_items_with_urls: dict[str, dict[str, dict[str, str]]] = {}
         for slot, items in selected_items.items():
-            augment_name = items.get('augment', '')
-            component_name = items.get('component', '')
+            augment_name: str = items.get('augment', '')
+            component_name: str = items.get('component', '')
             selected_items_with_urls[slot] = {
                 'Augment': {
                     'Name': augment_name,
@@ -211,31 +239,43 @@ class ResistanceOptimizer:
 
 
     def generated_selected_items_dict(self) -> dict[str, dict[str, str]]:
+        """Generates an empty dictionary based on the weapon template
+        to store information of the items to be selected
 
-            final_slots = self.all_gear_slots.copy()
-            if self.weapon_template == "one-hand-shield":
-                final_slots.remove("Off-Hand")
-                final_slots.remove("Two-Handed")
-                final_slots.remove("Ranged")
-            elif self.weapon_template == "one-hand-offhand":
-                final_slots.remove("Shield")
-                final_slots.remove("Two-Handed")
-                final_slots.remove("Ranged")
-            elif self.weapon_template == "two-hand":
-                final_slots.remove("One-Handed")
-                final_slots.remove("Off-Hand")
-                final_slots.remove("Ranged")
-                final_slots.remove("Shield")
-            elif self.weapon_template == "ranged-offhand":
-                final_slots.remove("Shield")
-                final_slots.remove("Two-Handed")
-                final_slots.remove("One-Handed")
+        Returns:
+            dict[str, dict[str, str]]: Empty dictionary for each remaining item based on weapon template
+        """
+        final_slots: list[str] = self.all_gear_slots.copy()
+        if self.weapon_template == "one-hand-shield":
+            final_slots.remove("Off-Hand")
+            final_slots.remove("Two-Handed")
+            final_slots.remove("Ranged")
+        elif self.weapon_template == "one-hand-offhand":
+            final_slots.remove("Shield")
+            final_slots.remove("Two-Handed")
+            final_slots.remove("Ranged")
+        elif self.weapon_template == "two-hand":
+            final_slots.remove("One-Handed")
+            final_slots.remove("Off-Hand")
+            final_slots.remove("Ranged")
+            final_slots.remove("Shield")
+        elif self.weapon_template == "ranged-offhand":
+            final_slots.remove("Shield")
+            final_slots.remove("Two-Handed")
+            final_slots.remove("One-Handed")
 
-            selected_items = {key: {"component": "", "augment": ""} for key in final_slots}
-            return selected_items
+        selected_items: dict[str, dict[str, str]] = {key: {"component": "", "augment": ""} for key in final_slots}
+        return selected_items
 
 
-    def optimize_resistances(self) -> None:
+    def optimize_resistances(self) -> tuple[dict[str, dict[str, dict[str, str]]], dict[str, int]]:
+        """Generate optimal combination of components and augments for each slot based on given info.
+
+        Returns:
+            dict[str, dict[str, dict[str, str]]]: Dictionary containing names and urls for selected components and augments.
+            dict[str, int]: Dictionary containing final resistance values after updating
+                                current resistances with values from chosen components and augments.
+        """
         # Create the problem - now maximizing resistance achievement
         prob = pulp.LpProblem("Multi_Objective_Resistance_Optimization", pulp.LpMaximize)
 
@@ -274,7 +314,6 @@ class ResistanceOptimizer:
             if needed > 0:
                 # Use min function to cap at target - this rewards reaching exactly the target
                 resistance_objectives.append(resistance_achieved[resistance])
-            # ic(resistance_objectives)
 
         # Secondary objective: Minimize number of components used
         total_components_used = []
@@ -348,6 +387,7 @@ class ResistanceOptimizer:
 
         if status == 'Optimal' or status == 'Infeasible':
             selected_items = self.generated_selected_items_dict()
+            final_resistances = self.current_resistances.copy()
             
             for i, item in self.useful_components.iterrows():
                 allowed_gear_slots = [slot for slot in self.available_component_slots if item[slot]]
@@ -355,7 +395,7 @@ class ResistanceOptimizer:
                     if (i, slot) in component_slot_vars and component_slot_vars[(i, slot)].varValue == 1:
                         selected_items[slot]['component'] = item['Item']
                         for res in self.resistance_types:
-                            self.current_resistances[res] += item[res]
+                            final_resistances[res] += item[res]
 
             for i, item in self.useful_augments.iterrows():
                 allowed_gear_slots = [slot for slot in self.available_augment_slots if item[slot]]
@@ -363,7 +403,7 @@ class ResistanceOptimizer:
                     if (i, slot) in augment_slot_vars and augment_slot_vars[(i, slot)].varValue == 1:
                         selected_items[slot]['augment'] = item['Item']
                         for res in self.resistance_types:
-                            self.current_resistances[res] += item[res]
+                            final_resistances[res] += item[res]
 
                 
             # Set slot as unavailable instead of just empty string to differenciate from free slots
@@ -375,4 +415,4 @@ class ResistanceOptimizer:
 
             selected_items_with_urls = self.generate_item_urls(selected_items, self.useful_components, self.useful_augments)
 
-            return selected_items_with_urls, self.current_resistances
+            return selected_items_with_urls, final_resistances
