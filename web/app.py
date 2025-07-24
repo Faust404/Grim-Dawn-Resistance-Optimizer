@@ -1,46 +1,11 @@
-from flask import Flask, render_template, request
-import pandas as pd
-from icecream import ic
-
 import sys
-sys.path.append('.')  # Adjust path to import components module
-from grim_dawn_resistance_optimizer.components import Components
-from grim_dawn_resistance_optimizer.resistance_component_augment_lp_solver import optimize_resistances
 
+from flask import Flask, render_template, request
+
+sys.path.append('.')  # Adjust path to import components module
+from grim_dawn_resistance_optimizer.resistance_optimizer import ResistanceOptimizer
 
 app = Flask(__name__)
-
-def filter_augment_db(augment_df: pd.DataFrame, player_faction_standings: dict) -> pd.DataFrame:
-
-    # Mapping
-    standing_levels = {
-        "Friendly": 1,
-        "Respected": 2,
-        "Honored": 3,
-        "Revered": 4
-    }
-
-    # Map player's standings to numeric levels
-    player_standings_num = { faction: standing_levels.get(level.title(), 0) 
-                            for faction, level in player_faction_standings.items() }
-
-
-    # Create numeric required standing column
-    augment_df['RequiredStandingNum'] = augment_df['Required Faction Level'].str.title().map(standing_levels)
-
-    # Define filter function
-    def player_meets_requirement(row):
-        player_level = player_standings_num.get(row['Faction'], 0)
-        required_level = row['RequiredStandingNum']
-        if pd.isna(required_level):
-            return False  # or True, as your policy
-        return player_level >= required_level
-
-    # Filter dataframe based on player standings
-    filtered_augments = augment_df[augment_df.apply(player_meets_requirement, axis=1)]
-
-    return filtered_augments
-
 
 @app.route("/", methods=['GET', 'POST'])
 def index():
@@ -135,44 +100,18 @@ def index():
         input_data.update(input_resistances)
         input_data.update(player_faction_standings)
 
-        components_obj = Components(
+        optimizer = ResistanceOptimizer(
             character_level=char_level,
             current_resistances=input_resistances,
             weapon_template=weapon_template,
             unavailable_component_slots=unavailable_component_slots,
-            unavailable_augment_slots=unavailable_augment_slots
+            unavailable_augment_slots=unavailable_augment_slots,
+            player_faction_standings=player_faction_standings
         )
-
-        # Remove components that have no resistance values
-        component_df = pd.read_csv(components_obj.component_csv_path)
-        useful_components = component_df[
-            (component_df[components_obj.resistance_types] != 0).any(axis=1)
-            & (component_df['Required Player Level'] <= components_obj.character_level)
-            ]
-        useful_components = useful_components.reset_index(drop=True)
-
-        # Remove augments that have no resistance values
-        augment_df = pd.read_csv(components_obj.augment_csv_path)
-        filtered_augment_df = filter_augment_db(augment_df, player_faction_standings)
-        useful_augments = filtered_augment_df[
-            (filtered_augment_df[components_obj.resistance_types] != 0).any(axis=1)
-            & (filtered_augment_df['Required Player Level'] <= components_obj.character_level)
-            ]
-        useful_augments = useful_augments.reset_index(drop=True)
-
-        selected_items_with_urls, final_resistances = optimize_resistances(
-            current_resistances=components_obj.current_resistances,
-            remaining_resistances=components_obj.remaining_resistances,
-            resistance_types=components_obj.resistance_types,
-            weapon_template=components_obj.weapon_template,
-            available_component_slots=components_obj.available_component_slots,
-            available_augment_slots=components_obj.available_augment_slots,
-            useful_components=useful_components,
-            useful_augments=useful_augments,
-        )
+        selected_items_with_urls, final_resistances = optimizer.optimize_resistances()
 
         # Calculate the resistance gaps if any after optimization
-        gap_resistances = {res: max(0, 80 - final_resistances[res]) for res in components_obj.resistance_types}
+        gap_resistances = {res: max(0, 80 - final_resistances[res]) for res in optimizer.resistance_types}
 
     return render_template(
         "index.html",
