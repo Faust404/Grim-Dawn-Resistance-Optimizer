@@ -3,7 +3,7 @@ import sys
 from flask import Flask, render_template, request
 
 sys.path.append('.')  # Adjust path to import components module
-from grim_dawn_resistance_optimizer.resistance_optimizer import ResistanceOptimizer
+from src.resistance_optimizer import ResistanceOptimizer
 
 app = Flask(__name__)
 
