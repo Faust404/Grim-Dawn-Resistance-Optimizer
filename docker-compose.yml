@@ -1,0 +1,10 @@
+services:
+  gd-helper:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: gd-helper-image
+    container_name: gd-helper-server
+    ports:
+      - "5000:5000"
+    restart: always
