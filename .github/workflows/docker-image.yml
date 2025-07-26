@@ -22,10 +22,10 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build and Push Docker image (multi-arch)
+      - name: Build and Push Docker image (for arm64)
         uses: docker/build-push-action@v5
         with:
           context: .
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/arm64
           push: true
           tags: himavanth19/gd-helper
