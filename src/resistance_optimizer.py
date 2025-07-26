@@ -137,18 +137,22 @@ class ResistanceOptimizer:
             available_gear_slots.remove("Two-Handed")
             available_gear_slots.remove("One-Handed")
 
+        def remove_gear(available_gear_slots: list[str], gear: str) -> list[str]:
+            try:
+                available_gear_slots.remove(gear)
+            except ValueError:
+                pass
+            return available_gear_slots
+
         for slot, status in unavailable_gear_slots.items():
             if (status is True) and (slot == "Weapon"):
                 for gear in ["One-Handed", "Two-Handed", "Ranged"]:
-                    try:
-                        available_gear_slots.remove(gear)
-                    except ValueError:
-                        pass
+                    available_gear_slots = remove_gear(available_gear_slots, gear)
+            elif (status is True) and (slot == "Off-Hand/Shield"):
+                available_gear_slots = remove_gear(available_gear_slots, "Off-Hand")
+                available_gear_slots = remove_gear(available_gear_slots, "Shield")
             elif status is True:
-                try:
-                    available_gear_slots.remove(slot)
-                except ValueError:
-                    pass
+                available_gear_slots = remove_gear(available_gear_slots, slot)
 
         return available_gear_slots
 

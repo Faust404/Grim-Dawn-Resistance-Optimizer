@@ -45,8 +45,7 @@ def index():
             "Ring2": request.form.get("component-ring2", "off"),
             "Medal": request.form.get("component-medal", "off"),
             "Weapon": request.form.get("component-weapon", "off"),
-            "Shield": request.form.get("component-shield", "off"),
-            "Off-Hand": request.form.get("component-offhand", "off"),
+            "Off-Hand/Shield": request.form.get("component-offhand-shield", "off"),
         }
         for slot, status in unavailable_component_slots.items():
             if status == "on":
@@ -68,8 +67,7 @@ def index():
             "Ring2": request.form.get("augment-ring2", "off"),
             "Medal": request.form.get("augment-medal", "off"),
             "Weapon": request.form.get("augment-weapon", "off"),
-            "Shield": request.form.get("augment-shield", "off"),
-            "Off-Hand": request.form.get("augment-offhand", "off"),
+            "Off-Hand/Shield": request.form.get("augment-offhand-shield", "off"),
         }
         for slot, status in unavailable_augment_slots.items():
             if status == "on":

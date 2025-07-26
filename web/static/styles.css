@@ -146,13 +146,19 @@ input:focus, select:focus {
 /* Checkbox location locks section */
 .locations {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    grid-template-columns: repeat(7, 1fr); /* fixed 7 columns */
     gap: 12px;
     padding: 21px 13px;
-    background: var(--location-bg);          /* dark container color */
+    background: var(--location-bg);
     border-radius: 8px;
-    border: 1.5px solid var(--location-border); /* subtle dark border */
-    box-shadow: 0 2px 10px 0 rgba(44,70,92,0.15); /* soft shadow for subtle depth */
+    border: 1.5px solid var(--location-border);
+    box-shadow: 0 2px 10px 0 rgba(44,70,92,0.15);
+}
+.locations label:last-child {
+    grid-column: span 2; /* span 2 columns instead of 1 */
+    white-space: nowrap; /* prevent text wrapping */
+    overflow: hidden;
+    text-overflow: ellipsis; /* add ellipsis if still overflow */
 }
 .locations label {
     font-size: 1.06em;
