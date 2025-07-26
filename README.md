@@ -24,8 +24,14 @@ The tool aims to maximize your resistances with the least amount of components a
 6. Hit the "Run Optimization" button
 
 # How to Self-Host
-Just a simple command
+You can use this docker-compose.yml to pull the image and deploy the container
 ```
-docker-compose up --build -d
+services:
+  gd-helper:
+    image: index.docker.io/himavanth19/gd-helper
+    container_name: gd-helper
+    ports:
+      - "5000:5000"
+    restart: always
 ```
 You will be able to see the tool running on http://127.0.0.1:5000
