@@ -21,6 +21,7 @@ class ResistanceOptimizer:
     player_faction_standings: dict[str, str] = None
 
     current_resistances: dict[str, int] = None
+    target_resistances: dict[str, int] = None
     remaining_resistances: dict[str, int] = None
 
     component_csv_path: str = "data/component_data.csv"
@@ -80,7 +81,7 @@ class ResistanceOptimizer:
     def calculate_remaining_resistances(self) -> None:
         """Calculate the remaining resistances based on current resistances."""
         self.remaining_resistances = {
-            res: max(0, 80 - self.current_resistances[res])
+            res: max(0, self.target_resistances[res] - self.current_resistances[res])
             for res in self.resistance_types
         }
 

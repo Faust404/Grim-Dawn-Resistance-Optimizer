@@ -17,6 +17,7 @@ def index():
     unavailable_component_slots = None
     unavailable_augment_slots = None
     if request.method == "POST":
+        weapon_template = request.form.get("template")
         char_level = int(request.form.get("char-level", 100))
         input_resistances = {
             "Fire Resistance": int(request.form.get("current-fire", 20)),
@@ -29,7 +30,18 @@ def index():
             "Aether Resistance": int(request.form.get("current-aether", 20)),
             "Chaos Resistance": int(request.form.get("current-chaos", 20)),
         }
-        weapon_template = request.form.get("template")
+
+        target_resistances = {
+            "Fire Resistance": int(request.form.get("target-fire", 80)),
+            "Cold Resistance": int(request.form.get("target-cold", 80)),
+            "Lightning Resistance": int(request.form.get("target-lightning", 80)),
+            "Poison & Acid Resistance": int(request.form.get("target-poison", 80)),
+            "Pierce Resistance": int(request.form.get("target-pierce", 80)),
+            "Bleeding Resistance": int(request.form.get("target-bleeding", 80)),
+            "Vitality Resistance": int(request.form.get("target-vitality", 80)),
+            "Aether Resistance": int(request.form.get("target-aether", 80)),
+            "Chaos Resistance": int(request.form.get("target-chaos", 80)),
+        }
 
         # Create a dictionary for unavailable component slots
         unavailable_component_slots = {
@@ -101,6 +113,7 @@ def index():
         optimizer = ResistanceOptimizer(
             character_level=char_level,
             current_resistances=input_resistances,
+            target_resistances=target_resistances,
             weapon_template=weapon_template,
             unavailable_component_slots=unavailable_component_slots,
             unavailable_augment_slots=unavailable_augment_slots,
@@ -110,16 +123,17 @@ def index():
 
         # Calculate the resistance gaps if any after optimization
         gap_resistances = {
-            res: max(0, 80 - final_resistances[res])
+            res: max(0, target_resistances[res] - final_resistances[res])
             for res in optimizer.resistance_types
         }
 
     return render_template(
-        "index.html",
+        "index2.html",
+        data=input_data,
+        target_resistances=target_resistances,
         results=selected_items_with_urls,
         final_resistances=final_resistances,
         gap_resistances=gap_resistances,
-        data=input_data,
         component_slots=unavailable_component_slots,
         augment_slots=unavailable_augment_slots,
     )
