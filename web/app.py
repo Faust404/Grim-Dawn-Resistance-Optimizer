@@ -12,6 +12,7 @@ app = Flask(__name__)
 def index():
     selected_items_with_urls = None
     final_resistances = None
+    target_resistances = None
     gap_resistances = None
     input_data = None
     unavailable_component_slots = None
@@ -128,7 +129,7 @@ def index():
         }
 
     return render_template(
-        "index2.html",
+        "index.html",
         data=input_data,
         target_resistances=target_resistances,
         results=selected_items_with_urls,
