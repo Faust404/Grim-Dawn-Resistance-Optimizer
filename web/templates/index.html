@@ -30,7 +30,9 @@
             <select id="template" name="template">
               <option value="one-hand-shield" {% if data.weapon_template == 'one-hand-shield' %}selected{% endif %}>One-Handed Weapon + Shield</option>
               <option value="one-hand-offhand" {% if data.weapon_template == 'one-hand-offhand' %}selected{% endif %}>One-Handed Weapon + Off-Hand</option>
+              <option value="one-hand-one-hand" {% if data.weapon_template == 'one-hand-one-hand' %}selected{% endif %}>One-Handed Weapon + One-Handed Weapon</option>
               <option value="ranged-offhand" {% if data.weapon_template == 'ranged-offhand' %}selected{% endif %}>Ranged Weapon + Off-Hand</option>
+              <option value="ranged-ranged" {% if data.weapon_template == 'ranged-ranged' %}selected{% endif %}>Ranged Weapon + Ranged Weapon</option>
               <option value="two-hand" {% if data.weapon_template == 'two-hand' %}selected{% endif %}>Two-Handed Weapon</option>
             </select>
           </div>

@@ -50,9 +50,11 @@ class ResistanceOptimizer:
             "Ring1",
             "Ring2",
             "Medal",
-            "One-Handed",
+            "One-Handed1",
+            "One-Handed2",
             "Two-Handed",
-            "Ranged",
+            "Ranged1",
+            "Ranged2",
             "Off-Hand",
             "Shield",
         ]
@@ -120,41 +122,63 @@ class ResistanceOptimizer:
             list[str]: List of available gear slots based on weapon template as well as given unavailability.
         """
         available_gear_slots: list[str] = self.all_gear_slots.copy()
-        if self.weapon_template == "one-hand-shield":
-            available_gear_slots.remove("Off-Hand")
-            available_gear_slots.remove("Two-Handed")
-            available_gear_slots.remove("Ranged")
-        elif self.weapon_template == "one-hand-offhand":
-            available_gear_slots.remove("Shield")
-            available_gear_slots.remove("Two-Handed")
-            available_gear_slots.remove("Ranged")
-        elif self.weapon_template == "two-hand":
-            available_gear_slots.remove("One-Handed")
-            available_gear_slots.remove("Off-Hand")
-            available_gear_slots.remove("Ranged")
-            available_gear_slots.remove("Shield")
-        elif self.weapon_template == "ranged-offhand":
-            available_gear_slots.remove("Shield")
-            available_gear_slots.remove("Two-Handed")
-            available_gear_slots.remove("One-Handed")
 
-        def remove_gear(available_gear_slots: list[str], gear: str) -> list[str]:
+        # Remove unavailable gear slots based on weapon template
+        available_gear_slots = self.process_weapon_template(available_gear_slots)
+
+        for slot, status in unavailable_gear_slots.items():
+            gear_to_remove = []
+            if (status is True) and (slot == "Weapon"):
+                gear_to_remove = ["One-Handed1", "One-Handed2", "Ranged1", "Ranged2", "Two-Handed"]
+            elif (status is True) and (slot == "Off-Hand/Shield"):
+                gear_to_remove = ["One-Handed2", "Ranged2", "Off-Hand", "Shield"]
+            elif status is True:
+                gear_to_remove = [slot]
+            available_gear_slots = self.remove_multiple_gear_slots(available_gear_slots, gear_to_remove)
+        
+        return available_gear_slots
+
+    def remove_multiple_gear_slots(self, available_gear_slots: list[str], gear_to_remove: list[str]) -> list[str]:
+        """Given a list of slots, remove them from all from the available list
+
+        Args:
+            available_gear_slots (list[str]): List of available gear slots
+            gear_to_remove (list[str]): List of gear to be removed
+
+        Returns:
+            list[str]: List of available gear slots
+        """
+        for gear in gear_to_remove:
             try:
                 available_gear_slots.remove(gear)
             except ValueError:
                 pass
-            return available_gear_slots
+        return available_gear_slots
 
-        for slot, status in unavailable_gear_slots.items():
-            if (status is True) and (slot == "Weapon"):
-                for gear in ["One-Handed", "Two-Handed", "Ranged"]:
-                    available_gear_slots = remove_gear(available_gear_slots, gear)
-            elif (status is True) and (slot == "Off-Hand/Shield"):
-                available_gear_slots = remove_gear(available_gear_slots, "Off-Hand")
-                available_gear_slots = remove_gear(available_gear_slots, "Shield")
-            elif status is True:
-                available_gear_slots = remove_gear(available_gear_slots, slot)
+    def process_weapon_template(self, available_gear_slots: list[str]) -> list[str]:
+        """Adjust list of available gear slots based on the weapon template
 
+        Args:
+            available_gear_slots (list[str]): List of available gear slots
+
+        Returns:
+            list[str]: List of available gear slots
+        """
+        gear_to_remove = []
+        if self.weapon_template == "one-hand-shield":
+            gear_to_remove = ["One-Handed2", "Off-Hand", "Ranged1", "Ranged2", "Two-Handed"]
+        elif self.weapon_template == "one-hand-offhand":
+            gear_to_remove = ["One-Handed2", "Shield", "Ranged1", "Ranged2", "Two-Handed"]
+        elif self.weapon_template == "one-hand-one-hand":
+            gear_to_remove = ["Off-Hand", "Shield", "Ranged1", "Ranged2", "Two-Handed"]
+        elif self.weapon_template == "ranged-offhand":
+            gear_to_remove = ["One-Handed1", "One-Handed2", "Shield", "Ranged2", "Two-Handed"]
+        elif self.weapon_template == "ranged-ranged":
+            gear_to_remove = ["One-Handed1", "One-Handed2", "Off-Hand", "Shield", "Two-Handed"]
+        elif self.weapon_template == "two-hand":
+            gear_to_remove = ["One-Handed1", "One-Handed2", "Off-Hand", "Shield", "Ranged1", "Ranged2"]
+        available_gear_slots = self.remove_multiple_gear_slots(available_gear_slots, gear_to_remove)
+    
         return available_gear_slots
 
     def filter_augment_db(self, augment_df: pd.DataFrame) -> pd.DataFrame:
@@ -252,23 +276,7 @@ class ResistanceOptimizer:
             dict[str, dict[str, str]]: Empty dictionary for each remaining item based on weapon template
         """
         final_slots: list[str] = self.all_gear_slots.copy()
-        if self.weapon_template == "one-hand-shield":
-            final_slots.remove("Off-Hand")
-            final_slots.remove("Two-Handed")
-            final_slots.remove("Ranged")
-        elif self.weapon_template == "one-hand-offhand":
-            final_slots.remove("Shield")
-            final_slots.remove("Two-Handed")
-            final_slots.remove("Ranged")
-        elif self.weapon_template == "two-hand":
-            final_slots.remove("One-Handed")
-            final_slots.remove("Off-Hand")
-            final_slots.remove("Ranged")
-            final_slots.remove("Shield")
-        elif self.weapon_template == "ranged-offhand":
-            final_slots.remove("Shield")
-            final_slots.remove("Two-Handed")
-            final_slots.remove("One-Handed")
+        final_slots = self.process_weapon_template(final_slots)
 
         selected_items: dict[str, dict[str, str]] = {
             key: {"component": "", "augment": ""} for key in final_slots
