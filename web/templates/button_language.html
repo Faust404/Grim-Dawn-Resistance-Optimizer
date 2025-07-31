@@ -1,0 +1,129 @@
+
+<!-- button_language.html -->
+
+<link rel="stylesheet" href="/static/button_language.css">
+
+<div class="language-switcher">
+    <div class="language-dropdown">
+        <button class="language-button" id="languageButton">Language</button>
+        <div class="language-dropdown-content" id="languageDropdown">
+            <div class="language-option" data-lang="en">English</div>
+            <div class="language-option" data-lang="zh">简体中文</div>
+            <div class="language-option" data-lang="ru">Русский</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 初始化语言
+    let language = localStorage.getItem('language') || 'en';
+    let dbTranslations = {};
+    let webTranslations = {};
+    var web_l10n_texts = {};
+    var db_l10n_texts = {};
+
+    const languageButton = document.getElementById('languageButton');
+    const languageDropdown = document.getElementById('languageDropdown');
+
+    // 切换下拉列表显示
+    languageButton.addEventListener('click', () => {
+        languageDropdown.classList.toggle('show');
+    });
+
+    // 点击页面其他区域关闭下拉列表
+    document.addEventListener('click', (event) => {
+        if (!languageButton.contains(event.target) && !languageDropdown.contains(event.target)) {
+            languageDropdown.classList.remove('show');
+        }
+    });
+
+    // 动态设置 data-language-Tag-And-Source-EN
+    function setLanguageTags() {
+        // 扫描所有元素，排除 script, style, input
+        document.querySelectorAll('*:not(script):not(style):not(input):not([data-language-Tag-And-Source-EN]):not([class^="language-"])').forEach(element => {
+            // 查找第一个文本节点
+            let textNode = Array.from(element.childNodes).find(node => node.nodeType === Node.TEXT_NODE);
+            if (textNode && textNode.textContent !== '') {
+                const textContent = textNode.textContent;
+                // 设置 data-language-Tag-And-Source-EN
+                element.setAttribute('data-language-Tag-And-Source-EN', textContent);
+            }
+        });
+    }
+
+    // 加载语言文件
+    async function loadLanguageFiles(lang) {
+        if (lang === 'en') {
+            dbTranslations = {};
+            webTranslations = {};
+            updateLocalizedText();
+            return;
+        }
+        try {
+            const dbScript = document.createElement('script');
+            dbScript.src = `/static/js/db/${lang}.js`;
+            const webScript = document.createElement('script');
+            webScript.src = `/static/js/web/${lang}.js`;
+            document.head.appendChild(dbScript);
+            document.head.appendChild(webScript);
+
+            await Promise.all([
+                new Promise(resolve => { dbScript.onload = resolve; dbScript.onerror = () => resolve(); }),
+                new Promise(resolve => { webScript.onload = resolve; webScript.onerror = () => resolve(); })
+            ]);
+
+            dbTranslations = window.db_l10n_texts?.[lang] || {};
+            webTranslations = window.web_l10n_texts?.[lang] || {};
+            // 显示数据（调试用）
+            // console.log(`Loaded translations for ${lang}:`, { db: dbTranslations, web: webTranslations });
+            updateLocalizedText();
+        } catch (error) {
+            console.error(`Failed to load language files for ${lang}:`, error);
+            dbTranslations = {};
+            webTranslations = {};
+            updateLocalizedText();
+        }
+    }
+
+    // 更新本地化文本，只替换文本节点
+    function updateLocalizedText() {
+        document.querySelectorAll('[data-language-Tag-And-Source-EN]').forEach(element => {
+            const tag = element.getAttribute('data-language-Tag-And-Source-EN');
+            // 查找第一个文本节点
+            let textNode = Array.from(element.childNodes).find(node => node.nodeType === Node.TEXT_NODE);
+            // 获取原始文本
+            const originalText = tag || (textNode ? textNode.textContent : '');
+            // 获取翻译
+            const translation = language === 'en' ? originalText : (webTranslations[tag] || dbTranslations[tag] || originalText);
+            // 替换文本节点或添加新文本节点
+            if (textNode) {
+                textNode.textContent = translation;
+            } else if (translation) {
+                element.appendChild(document.createTextNode(translation));
+            }
+            // 调试日志
+            // if (language !== 'en' && !dbTranslations[tag] && !webTranslations[tag]) {
+            //     console.warn(`No translation for tag: ${tag} in language: ${language}`);
+            // }
+        });
+        // 更新按钮文本
+        languageButton.textContent = language === 'en' ? 'Language' : (webTranslations['Language'] || 'Language');
+    }
+
+    // 处理语言切换
+    languageDropdown.addEventListener('click', (event) => {
+        const lang = event.target.getAttribute('data-lang');
+        if (lang) {
+            language = lang;
+            localStorage.setItem('language', language);
+            languageDropdown.classList.remove('show');
+            loadLanguageFiles(language);
+        }
+    });
+
+    // 页面加载时初始化
+    (async () => {
+        setLanguageTags(); // 先设置属性
+        await loadLanguageFiles(language); // 再加载语言和翻译
+    })();
+</script>
