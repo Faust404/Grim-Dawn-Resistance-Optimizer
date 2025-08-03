@@ -1,0 +1,76 @@
+
+/* button_language.css */
+
+/* 继承 styles.css 的变量 */
+/*@import url('styles.css');*/
+
+/* 按钮容器，定位右上角 */
+.language-switcher {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+/* 语言切换按钮 */
+.language-button {
+    background: linear-gradient(90deg, var(--accent-green) 60%, var(--accent-blue));
+    color: #202522;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 9px;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.18s;
+    box-shadow: 0 4px 20px 0 rgba(48, 196, 124, 0.10);
+    text-shadow: 0 1px 4px #181c255c;
+    letter-spacing: 0.5px;
+}
+
+.language-button:hover {
+    filter: brightness(1.08);
+    box-shadow: 0 4px 22px 0 rgba(48, 196, 124, 0.17);
+    transform: translateY(-1px);
+}
+
+/* 下拉列表容器 */
+.language-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+/* 下拉列表 */
+.language-dropdown-content {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: var(--input-bg);
+    border: 2px solid var(--input-border);
+    border-radius: 9px;
+    min-width: 160px;
+    box-shadow: 0 8px 32px 0 rgba(22, 24, 37, 0.42);
+    z-index: 1000;
+    margin-top: 5px;
+}
+
+.language-dropdown-content.show {
+    display: block;
+}
+
+/* 下拉选项 */
+.language-option {
+    color: var(--input-fg);
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.language-option:hover {
+    background: var(--table-row-even);
+    color: var(--accent-green);
+}
