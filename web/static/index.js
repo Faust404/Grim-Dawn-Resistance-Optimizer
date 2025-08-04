@@ -225,16 +225,59 @@ function loadState() {
 }
 
 // -- Scroll position persistence --
-document.querySelector('form').addEventListener('submit', () => {
-localStorage.setItem('scrollPos', window.scrollY);
-});
+// Object to store scroll positions per tab
+const scrollPositions = {};
+
+// Save scroll position for active tab before form submit
+const savePageState = () => {
+const activeTab = document.querySelector('.tab.active');
+if (activeTab) {
+    const tabName = activeTab.dataset.tab;
+    scrollPositions[tabName] = window.scrollY;
+    localStorage.setItem('scrollPositions', JSON.stringify(scrollPositions));
+    localStorage.setItem('activeTab', tabName);
+}
+};
+
+document.querySelector('form').addEventListener('submit', savePageState);
 
 window.addEventListener('load', () => {
-const scrollPos = localStorage.getItem('scrollPos');
-if (scrollPos !== null) {
-    window.scrollTo(0, parseInt(scrollPos));
-    localStorage.removeItem('scrollPos');
-}
+    const savedScrollPositions = JSON.parse(localStorage.getItem('scrollPositions') || '{}');
+    const activeTab = localStorage.getItem('activeTab');
+
+    if (activeTab) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+        const tabToActivate = document.querySelector(`.tab[data-tab="${activeTab}"]`);
+        const contentToActivate = document.getElementById(`tab-${activeTab}`);
+        if (tabToActivate && contentToActivate) {
+            tabToActivate.classList.add('active');
+            contentToActivate.classList.add('active');
+        }
+
+    // Restore scroll for the active tab if saved
+    if (savedScrollPositions[activeTab] !== undefined) {
+        window.scrollTo(0, savedScrollPositions[activeTab]);
+        }
+    }
+
+  // Clean up stored values
+    localStorage.removeItem('activeTab');
+    localStorage.removeItem('scrollPositions');
+});
+
+// Save scroll position on tab change
+document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+        // Save scroll of currently active tab before switching
+        const currentActiveTab = document.querySelector('.tab.active');
+        if (currentActiveTab) {
+            scrollPositions[currentActiveTab.dataset.tab] = window.scrollY;
+            localStorage.setItem('scrollPositions', JSON.stringify(scrollPositions));
+        }
+        // Save new active tab
+        localStorage.setItem('activeTab', tab.dataset.tab);
+    });
 });
 
 // -- INITIALIZATION --
