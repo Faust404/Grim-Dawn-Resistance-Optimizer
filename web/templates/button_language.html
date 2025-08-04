@@ -1,6 +1,3 @@
-
-<!-- button_language.html -->
-
 <link rel="stylesheet" href="/static/button_language.css">
 
 <div class="language-switcher">
@@ -9,13 +6,12 @@
         <div class="language-dropdown-content" id="languageDropdown">
             <div class="language-option" data-lang="en">English</div>
             <div class="language-option" data-lang="zh">简体中文</div>
-            <div class="language-option" data-lang="ru">Русский</div>
         </div>
     </div>
 </div>
 
 <script>
-    // 初始化语言
+    // Initialization Language
     let language = localStorage.getItem('language') || 'en';
     let dbTranslations = {};
     let webTranslations = {};
@@ -25,33 +21,31 @@
     const languageButton = document.getElementById('languageButton');
     const languageDropdown = document.getElementById('languageDropdown');
 
-    // 切换下拉列表显示
+    // Toggle drop-down list display
     languageButton.addEventListener('click', () => {
         languageDropdown.classList.toggle('show');
     });
 
-    // 点击页面其他区域关闭下拉列表
+    // Click elsewhere on the page to close the drop-down list
     document.addEventListener('click', (event) => {
         if (!languageButton.contains(event.target) && !languageDropdown.contains(event.target)) {
             languageDropdown.classList.remove('show');
         }
     });
 
-    // 动态设置 data-language-Tag-And-Source-EN
+    // Dynamic Settings data-language-Tag-And-Source-EN
     function setLanguageTags() {
-        // 扫描所有元素，排除 script, style, input
-        document.querySelectorAll('*:not(script):not(style):not(input):not([data-language-Tag-And-Source-EN]):not([class^="language-"])').forEach(element => {
-            // 查找第一个文本节点
+        document.querySelectorAll('*:not(script):not(style):not(input):not([class^="language-"]):not(.res-val)').forEach(element => {
             let textNode = Array.from(element.childNodes).find(node => node.nodeType === Node.TEXT_NODE);
             if (textNode && textNode.textContent !== '') {
                 const textContent = textNode.textContent;
-                // 设置 data-language-Tag-And-Source-EN
                 element.setAttribute('data-language-Tag-And-Source-EN', textContent);
+                //console.log(`Set data-language-Tag-And-Source-EN for element: ${textContent}`); // Debug Log
             }
         });
     }
 
-    // 加载语言文件
+    // Loading language files
     async function loadLanguageFiles(lang) {
         if (lang === 'en') {
             dbTranslations = {};
@@ -74,8 +68,7 @@
 
             dbTranslations = window.db_l10n_texts?.[lang] || {};
             webTranslations = window.web_l10n_texts?.[lang] || {};
-            // 显示数据（调试用）
-            // console.log(`Loaded translations for ${lang}:`, { db: dbTranslations, web: webTranslations });
+            //console.log(`Loaded translations for ${lang}:`, { db: dbTranslations, web: webTranslations }); // Debug Log
             updateLocalizedText();
         } catch (error) {
             console.error(`Failed to load language files for ${lang}:`, error);
@@ -85,32 +78,50 @@
         }
     }
 
-    // 更新本地化文本，只替换文本节点
+    // Update localized text
     function updateLocalizedText() {
         document.querySelectorAll('[data-language-Tag-And-Source-EN]').forEach(element => {
-            const tag = element.getAttribute('data-language-Tag-And-Source-EN');
-            // 查找第一个文本节点
+            const sourceText = element.getAttribute('data-language-Tag-And-Source-EN');
             let textNode = Array.from(element.childNodes).find(node => node.nodeType === Node.TEXT_NODE);
-            // 获取原始文本
-            const originalText = tag || (textNode ? textNode.textContent : '');
-            // 获取翻译
-            const translation = language === 'en' ? originalText : (webTranslations[tag] || dbTranslations[tag] || originalText);
-            // 替换文本节点或添加新文本节点
-            if (textNode) {
-                textNode.textContent = translation;
-            } else if (translation) {
-                element.appendChild(document.createTextNode(translation));
+            
+            if (language === 'en') {
+                // Use in English data-language-Tag-And-Source-EN
+                if (textNode) {
+                    textNode.textContent = sourceText;
+                } else if (sourceText) {
+                    element.appendChild(document.createTextNode(sourceText));
+                }
+            } else {
+                // Non-English
+                let translation;
+                if (element.hasAttribute('data-language-Tag')) {
+                    // Item Data: Usage dbTranslations
+                    const tag = element.getAttribute('data-language-Tag');
+                    translation = dbTranslations[tag] || sourceText;
+                    // if (!dbTranslations[tag]) {
+                    //     console.warn(`No db translation found for tag: ${tag} in language: ${language}`);
+                    // }
+                } else {
+                    // Pure web content: Use webTranslations
+                    translation = webTranslations[sourceText] || sourceText;
+                    // if (!webTranslations[sourceText]) {
+                    //     console.warn(`No web translation found for tag: ${sourceText} in language: ${language}`);
+                    // }
+                }
+                
+                if (textNode) {
+                    textNode.textContent = translation;
+                } else if (translation) {
+                    element.appendChild(document.createTextNode(translation));
+                }
             }
-            // 调试日志
-            // if (language !== 'en' && !dbTranslations[tag] && !webTranslations[tag]) {
-            //     console.warn(`No translation for tag: ${tag} in language: ${language}`);
-            // }
         });
-        // 更新按钮文本
+
+        // Update button text
         languageButton.textContent = language === 'en' ? 'Language' : (webTranslations['Language'] || 'Language');
     }
 
-    // 处理语言切换
+    // Handling language switching
     languageDropdown.addEventListener('click', (event) => {
         const lang = event.target.getAttribute('data-lang');
         if (lang) {
@@ -121,9 +132,9 @@
         }
     });
 
-    // 页面加载时初始化
+    // Initialized when the page loads
     (async () => {
-        setLanguageTags(); // 先设置属性
-        await loadLanguageFiles(language); // 再加载语言和翻译
+        setLanguageTags();
+        await loadLanguageFiles(language);
     })();
 </script>

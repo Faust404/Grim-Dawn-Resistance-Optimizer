@@ -377,7 +377,7 @@
               {% if values.Component.Name == "Slot Unavailable" %}
                 <span style="color: #ff6b6b; font-weight: 600;">{{ values.Component.Name }}</span>
               {% elif values.Component.Url %}
-                <a href="{{ values.Component.Url }}" target="_blank">{{ values.Component.Name }}</a>
+                <a href="{{ values.Component.Url }}" target="_blank" data-language-Tag="{{ values.Component.Tag }}">{{ values.Component.Name }}</a>
               {% else %}
                 {{ values.Component.Name }}
               {% endif %}
@@ -390,7 +390,7 @@
               {% if values.Augment.Name == "Slot Unavailable" %}
                 <span style="color: #ff6b6b; font-weight: 600;">{{ values.Augment.Name }}</span>
               {% elif values.Augment.Url %}
-                <a href="{{ values.Augment.Url }}" target="_blank">{{ values.Augment.Name }}</a>
+                <a href="{{ values.Augment.Url }}" target="_blank" data-language-Tag="{{ values.Augment.Tag }}">{{ values.Augment.Name }}</a>
               {% else %}
                 {{ values.Augment.Name }}
               {% endif %}
