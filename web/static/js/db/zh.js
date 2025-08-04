@@ -3776,7 +3776,7 @@ db_l10n_texts['zh'] = {
     "tagFactionUser17Rewards6": "Access to Bounty Table {^n}Faction Weapons {^n}Faction Armor {^n}Faction Blueprints",
     "tagGDX1ItemSkillD173Desc": "战斗武器和奥术特性巧妙的结合，造就了一种特别致命的组合。^o当你使用默认武器攻击时，霹雳符文会造成额外伤害。",
     "tagFactionUser17Rewards5": "Access to Faction Vendor",
-    "tagGDX1CompB101Name": "^k神圣铠甲片",
+    "tagGDX1CompB101Name": "神圣铠甲片",
     "tagFactionUser17Rewards4": "Empty",
     "tagFactionUser17Rewards3": "N/A",
     "Common_tagNoUpdates": "当前版本已是最新版本.",
