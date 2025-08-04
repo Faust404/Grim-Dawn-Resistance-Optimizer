@@ -20,23 +20,15 @@
         <button type="button" class="tab active" data-tab="basic">Basic Config</button>
         <button type="button" class="tab" data-tab="advanced">Advanced Config</button>
       </div>
-
+      
       <!-- BASIC TAB CONTENT -->
       <div class="tab-content active" id="tab-basic">
 
         <div class="section">
           <h2>⚙️ Weapon Template</h2>
           <div class="form-group">
-            <select id="template" name="template">
-              <option value="one-hand-shield" {% if data.weapon_template == 'one-hand-shield' %}selected{% endif %}>One-Handed Weapon + Shield</option>
-              <option value="one-hand-offhand" {% if data.weapon_template == 'one-hand-offhand' %}selected{% endif %}>One-Handed Weapon + Off-Hand</option>
-              <option value="one-hand-one-hand" {% if data.weapon_template == 'one-hand-one-hand' %}selected{% endif %}>One-Handed Weapon + One-Handed Weapon</option>
-              <option value="ranged-offhand" {% if data.weapon_template == 'ranged-offhand' %}selected{% endif %}>Ranged Weapon + Off-Hand</option>
-              <option value="ranged-ranged" {% if data.weapon_template == 'ranged-ranged' %}selected{% endif %}>Ranged Weapon + Ranged Weapon</option>
-              <option value="two-hand" {% if data.weapon_template == 'two-hand' %}selected{% endif %}>Two-Handed Weapon</option>
-            </select>
+            <select id="template" name="template"></select>
           </div>
-          <br>
         </div>
 
         <div class="section">
@@ -44,317 +36,48 @@
           <div class="form-group">
             <label for="char-level">Character Level:</label>
             <div class="resistance-input" style="max-width: 210px;">
-              <input type="number" name="char-level" value="{{ data['Character Level'] or 100 }}" min="1" max="100">
+              <input type="number" name="char-level" id="char-level" value="100" min="1" max="100">
             </div>
           </div>
           <div class="form-group">
             <label>Current Resistances:</label>
-            <div class="resistance-grid">
-              <!-- ... your existing resistance-input divs ... -->
-              <div class="resistance-input">
-                <label>Fire:</label>
-                <input type="number" name="current-fire" value="{{ data['Fire Resistance'] or 40 }}" min="0" max="200">
-              </div>
-              <!-- Repeat for all types ... -->
-              <div class="resistance-input">
-                <label>Cold:</label>
-                <input type="number" name="current-cold" value="{{ data['Cold Resistance'] or 40 }}" min="0" max="200">
-              </div>
-              <div class="resistance-input">
-                <label>Lightning:</label>
-                <input type="number" name="current-lightning" value="{{ data['Lightning Resistance'] or 40 }}" min="0" max="200">
-              </div>
-              <div class="resistance-input">
-                <label>Poison & Acid:</label>
-                <input type="number" name="current-poison" value="{{ data['Poison & Acid Resistance'] or 40 }}" min="0" max="200">
-              </div>
-              <div class="resistance-input">
-                <label>Pierce:</label>
-                <input type="number" name="current-pierce" value="{{ data['Pierce Resistance'] or 40 }}" min="0" max="200">
-              </div>
-              <div class="resistance-input">
-                <label>Bleeding:</label>
-                <input type="number" name="current-bleeding" value="{{ data['Bleeding Resistance'] or 40 }}" min="0" max="200">
-              </div>
-              <div class="resistance-input">
-                <label>Vitality:</label>
-                <input type="number" name="current-vitality" value="{{ data['Vitality Resistance'] or 40 }}" min="0" max="200">
-              </div>
-              <div class="resistance-input">
-                <label>Aether:</label>
-                <input type="number" name="current-aether" value="{{ data['Aether Resistance'] or 40 }}" min="0" max="200">
-              </div>
-              <div class="resistance-input">
-                <label>Chaos:</label>
-                <input type="number" name="current-chaos" value="{{ data['Chaos Resistance'] or 40 }}" min="0" max="200">
-              </div>
-            </div>
+            <div id="resistances-section" class="resistance-grid"></div>
           </div>
         </div>
 
         <div class="section">
           <h2>⚙️ Unavailable Component Slots</h2>
           <div class="form-group">
-          <div class="locations">
-              <label><input type="checkbox" name="component-head" {% if component_slots['Helm'] %}checked{% endif %}> Head</label>
-              <label><input type="checkbox" name="component-chest" {% if component_slots['Chest'] %}checked{% endif %}> Chest</label>
-              <label><input type="checkbox" name="component-shoulder" {% if component_slots['Shoulders'] %}checked{% endif %}> Shoulders</label>
-              <label><input type="checkbox" name="component-hand" {% if component_slots['Gloves'] %}checked{% endif %}> Gloves</label>
-              <label><input type="checkbox" name="component-foot" {% if component_slots['Boots'] %}checked{% endif %}> Boots</label>
-              <label><input type="checkbox" name="component-legs" {% if component_slots['Pants'] %}checked{% endif %}> Pants</label>
-              <label><input type="checkbox" name="component-belt" {% if component_slots['Belt'] %}checked{% endif %}> Belt</label>
-              <label><input type="checkbox" name="component-amulet" {% if component_slots['Amulet'] %}checked{% endif %}> Amulet</label>
-              <label><input type="checkbox" name="component-ring1" {% if component_slots['Ring1'] %}checked{% endif %}> Ring 1</label>
-              <label><input type="checkbox" name="component-ring2" {% if component_slots['Ring2'] %}checked{% endif %}> Ring 2</label>
-              <label><input type="checkbox" name="component-medal" {% if component_slots['Medal'] %}checked{% endif %}> Medal</label>
-              <label><input type="checkbox" name="component-weapon" {% if component_slots['Weapon'] %}checked{% endif %}> Weapon</label>
-              <label><input type="checkbox" name="component-offhand-shield" {% if component_slots['Off-Hand/Shield'] %}checked{% endif %}> Off-Hand/Shield</label>
-          </div>
+            <div id="component-slots-section" class="locations"></div>
           </div>
         </div>
 
         <div class="section">
           <h2>⚙️ Unavailable Augment Slots</h2>
           <div class="form-group">
-          <div class="locations">
-              <label><input type="checkbox" name="augment-head" {% if augment_slots['Helm'] %}checked{% endif %}> Head</label>
-              <label><input type="checkbox" name="augment-chest" {% if augment_slots['Chest'] %}checked{% endif %}> Chest</label>
-              <label><input type="checkbox" name="augment-shoulder" {% if augment_slots['Shoulders'] %}checked{% endif %}> Shoulders</label>
-              <label><input type="checkbox" name="augment-hand" {% if augment_slots['Gloves'] %}checked{% endif %}> Gloves</label>
-              <label><input type="checkbox" name="augment-foot" {% if augment_slots['Boots'] %}checked{% endif %}> Boots</label>
-              <label><input type="checkbox" name="augment-legs" {% if augment_slots['Pants'] %}checked{% endif %}> Pants</label>
-              <label><input type="checkbox" name="augment-belt" {% if augment_slots['Belt'] %}checked{% endif %}> Belt</label>
-              <label><input type="checkbox" name="augment-amulet" {% if augment_slots['Amulet'] %}checked{% endif %}> Amulet</label>
-              <label><input type="checkbox" name="augment-ring1" {% if augment_slots['Ring1'] %}checked{% endif %}> Ring 1</label>
-              <label><input type="checkbox" name="augment-ring2" {% if augment_slots['Ring2'] %}checked{% endif %}> Ring 2</label>
-              <label><input type="checkbox" name="augment-medal" {% if augment_slots['Medal'] %}checked{% endif %}> Medal</label>
-              <label><input type="checkbox" name="augment-weapon" {% if augment_slots['Weapon'] %}checked{% endif %}> Weapon</label>
-              <label><input type="checkbox" name="augment-offhand-shield" {% if augment_slots['Off-Hand/Shield'] %}checked{% endif %}> Off-Hand/Shield</label>
+            <div id="augment-slots-section" class="locations"></div>
           </div>
+        </div>
+      </div>
+
+      <!-- ADVANCED TAB CONTENT -->
+      <div class="tab-content" id="tab-advanced">
+        <div class="section">
+          <h2>⚙️ Player Target Resistances</h2>
+          <div class="form-group">
+            <label>Target Resistances:</label>
+            <div id="target-resistances-section" class="resistance-grid"></div>
           </div>
         </div>
 
+        <div class="factions-section">
+          <h2>⚙️ Player Faction Standing</h2>
+          <div id="faction-dropdowns-section" class="dropdown-grid"></div>
+        </div>
       </div>
 
-        <!-- ADVANCED TAB CONTENT -->
-        <div class="tab-content" id="tab-advanced">
-
-          <div class="section">
-            <h2>⚙️ Player Target Resistances</h2>
-            <div class="form-group">
-              <label>Target Resistances:</label>
-              <div class="resistance-grid">
-                <div class="resistance-input">
-                  <label>Fire:</label>
-                  <input type="number" name="target-fire" value="{{ target_resistances['Fire Resistance'] or 80 }}" min="0" max="300">
-                </div>
-                <div class="resistance-input">
-                  <label>Cold:</label>
-                  <input type="number" name="target-cold" value="{{ target_resistances['Cold Resistance'] or 80 }}" min="0" max="300">
-                </div>
-                <div class="resistance-input">
-                  <label>Lightning:</label>
-                  <input type="number" name="target-lightning" value="{{ target_resistances['Lightning Resistance'] or 80 }}" min="0" max="300">
-                </div>
-                <div class="resistance-input">
-                  <label>Poison & Acid:</label>
-                  <input type="number" name="target-poison" value="{{ target_resistances['Poison & Acid Resistance'] or 80 }}" min="0" max="300">
-                </div>
-                <div class="resistance-input">
-                  <label>Pierce:</label>
-                  <input type="number" name="target-pierce" value="{{ target_resistances['Pierce Resistance'] or 80 }}" min="0" max="300">
-                </div>
-                <div class="resistance-input">
-                  <label>Bleeding:</label>
-                  <input type="number" name="target-bleeding" value="{{ target_resistances['Bleeding Resistance'] or 80 }}" min="0" max="300">
-                </div>
-                <div class="resistance-input">
-                  <label>Vitality:</label>
-                  <input type="number" name="target-vitality" value="{{ target_resistances['Vitality Resistance'] or 80 }}" min="0" max="300">
-                </div>
-                <div class="resistance-input">
-                  <label>Aether:</label>
-                  <input type="number" name="target-aether" value="{{ target_resistances['Aether Resistance'] or 80 }}" min="0" max="300">
-                </div>
-                <div class="resistance-input">
-                  <label>Chaos:</label>
-                  <input type="number" name="target-chaos" value="{{ target_resistances['Chaos Resistance'] or 80 }}" min="0" max="300">
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="factions-section">
-            <h2>⚙️ Player Faction Standing</h2>
-            <div class="dropdown-grid">
-
-              <div class="dropdown-item">
-                <label>Devil's Crossing</label>
-                <select name="standing-crossing">
-                  <option value="friendly" {% if data["Devil's Crossing"] == 'friendly' %}selected{% endif %}>Friendly</option>
-                  <option value="respected" {% if data["Devil's Crossing"] == 'respected' %}selected{% endif %}>Respected</option>
-                  <option value="honored" {% if data["Devil's Crossing"] == 'honored' %}selected{% endif %}>Honored</option>
-                  <option value="revered" 
-                    {% if data["Devil's Crossing"] == 'revered' or not data["Devil's Crossing"] %}selected{% endif %}
-                  >Revered</option>
-                </select>
-              </div>
-
-              <div class="dropdown-item">
-                <label>Rovers</label>
-                <select name="standing-rovers">
-                  <option value="friendly" {% if data['Rovers'] == 'friendly' %}selected{% endif %}>Friendly</option>
-                  <option value="respected" {% if data['Rovers'] == 'respected' %}selected{% endif %}>Respected</option>
-                  <option value="honored" {% if data['Rovers'] == 'honored' %}selected{% endif %}>Honored</option>
-                  <option value="revered" 
-                    {% if data['Rovers'] == 'revered' or not data['Rovers'] %}selected{% endif %}
-                  >Revered</option>
-                </select>
-              </div>
-
-              <div class="dropdown-item">
-                <label>Homestead</label>
-                <select name="standing-homestead">
-                  <option value="friendly" {% if data['Homestead'] == 'friendly' %}selected{% endif %}>Friendly</option>
-                  <option value="respected" {% if data['Homestead'] == 'respected' %}selected{% endif %}>Respected</option>
-                  <option value="honored" {% if data['Homestead'] == 'honored' %}selected{% endif %}>Honored</option>
-                  <option value="revered" 
-                    {% if data['Homestead'] == 'revered' or not data['Homestead'] %}selected{% endif %}
-                  >Revered</option>
-                </select>
-              </div>
-
-              <div class="dropdown-item">
-                <label>Kymon's Chosen</label>
-                <select name="standing-kymon">
-                  <option value="friendly" {% if data["Kymon's Chosen"] == 'friendly' %}selected{% endif %}>Friendly</option>
-                  <option value="respected" {% if data["Kymon's Chosen"] == 'respected' %}selected{% endif %}>Respected</option>
-                  <option value="honored" {% if data["Kymon's Chosen"] == 'honored' %}selected{% endif %}>Honored</option>
-                  <option value="revered" 
-                    {% if data["Kymon's Chosen"] == 'revered' or not data["Kymon's Chosen"] %}selected{% endif %}
-                  >Revered</option>
-                </select>
-              </div>
-
-              <div class="dropdown-item">
-                <label>Death's Vigil</label>
-                <select name="standing-order">
-                  <option value="friendly" {% if data["Order of Death's Vigil"] == 'friendly' %}selected{% endif %}>Friendly</option>
-                  <option value="respected" {% if data["Order of Death's Vigil"] == 'respected' %}selected{% endif %}>Respected</option>
-                  <option value="honored" {% if data["Order of Death's Vigil"] == 'honored' %}selected{% endif %}>Honored</option>
-                  <option value="revered" 
-                    {% if data["Order of Death's Vigil"] == 'revered' or not data["Order of Death's Vigil"] %}selected{% endif %}
-                  >Revered</option>
-                </select>
-              </div>
-
-              <div class="dropdown-item">
-                <label>Black Legion</label>
-                <select name="standing-black-legion">
-                  <option value="friendly" {% if data['The Black Legion'] == 'friendly' %}selected{% endif %}>Friendly</option>
-                  <option value="respected" {% if data['The Black Legion'] == 'respected' %}selected{% endif %}>Respected</option>
-                  <option value="honored" {% if data['The Black Legion'] == 'honored' %}selected{% endif %}>Honored</option>
-                  <option value="revered" 
-                    {% if data['The Black Legion'] == 'revered' or not data['The Black Legion'] %}selected{% endif %}
-                  >Revered</option>
-                </select>
-              </div>
-
-              <div class="dropdown-item">
-                <label>The Outcast</label>
-                <select name="standing-outcast">
-                  <option value="friendly" {% if data['The Outcast'] == 'friendly' %}selected{% endif %}>Friendly</option>
-                  <option value="respected" {% if data['The Outcast'] == 'respected' %}selected{% endif %}>Respected</option>
-                  <option value="honored" {% if data['The Outcast'] == 'honored' %}selected{% endif %}>Honored</option>
-                  <option value="revered" 
-                    {% if data['The Outcast'] == 'revered' or not data['The Outcast'] %}selected{% endif %}
-                  >Revered</option>
-                </select>
-              </div>
-
-              <div class="dropdown-item">
-                <label>Coven of Ugdenbog</label>
-                <select name="standing-coven">
-                  <option value="friendly" {% if data['Coven of Ugdenbog'] == 'friendly' %}selected{% endif %}>Friendly</option>
-                  <option value="respected" {% if data['Coven of Ugdenbog'] == 'respected' %}selected{% endif %}>Respected</option>
-                  <option value="honored" {% if data['Coven of Ugdenbog'] == 'honored' %}selected{% endif %}>Honored</option>
-                  <option value="revered" 
-                    {% if data['Coven of Ugdenbog'] == 'revered' or not data['Rovers'] %}selected{% endif %}
-                  >Revered</option>
-                </select>
-              </div>
-
-              <div class="dropdown-item">
-                <label>Barrowholm</label>
-                <select name="standing-barrowholm">
-                  <option value="friendly" {% if data['Barrowholm'] == 'friendly' %}selected{% endif %}>Friendly</option>
-                  <option value="respected" {% if data['Barrowholm'] == 'respected' %}selected{% endif %}>Respected</option>
-                  <option value="honored" {% if data['Barrowholm'] == 'honored' %}selected{% endif %}>Honored</option>
-                  <option value="revered" 
-                    {% if data['Barrowholm'] == 'revered' or not data['Barrowholm'] %}selected{% endif %}
-                  >Revered</option>
-                </select>
-              </div>
-
-              <div class="dropdown-item">
-                <label>Malmouth</label>
-                <select name="standing-malmouth">
-                  <option value="friendly" {% if data['Malmouth Resistance'] == 'friendly' %}selected{% endif %}>Friendly</option>
-                  <option value="respected" {% if data['Malmouth Resistance'] == 'respected' %}selected{% endif %}>Respected</option>
-                  <option value="honored" {% if data['Malmouth Resistance'] == 'honored' %}selected{% endif %}>Honored</option>
-                  <option value="revered" 
-                    {% if data['Malmouth Resistance'] == 'revered' or not data['Malmouth Resistance'] %}selected{% endif %}
-                  >Revered</option>
-                </select>
-              </div>
-
-              <div class="dropdown-item">
-                <label>Cult of Bysmiel</label>
-                <select name="standing-bysmiel">
-                  <option value="friendly" {% if data['Cult of Bysmiel'] == 'friendly' %}selected{% endif %}>Friendly</option>
-                  <option value="respected" {% if data['Cult of Bysmiel'] == 'respected' %}selected{% endif %}>Respected</option>
-                  <option value="honored" {% if data['Cult of Bysmiel'] == 'honored' %}selected{% endif %}>Honored</option>
-                  <option value="revered" 
-                    {% if data['Cult of Bysmiel'] == 'revered' or not data['Cult of Bysmiel'] %}selected{% endif %}
-                  >Revered</option>
-                </select>
-              </div>
-
-              <div class="dropdown-item">
-                <label>Cult of Dreeg</label>
-                <select name="standing-dreeg">
-                  <option value="friendly" {% if data['Cult of Dreeg'] == 'friendly' %}selected{% endif %}>Friendly</option>
-                  <option value="respected" {% if data['Cult of Dreeg'] == 'respected' %}selected{% endif %}>Respected</option>
-                  <option value="honored" {% if data['Cult of Dreeg'] == 'honored' %}selected{% endif %}>Honored</option>
-                  <option value="revered" 
-                    {% if data['Cult of Dreeg'] == 'revered' or not data['Cult of Dreeg'] %}selected{% endif %}
-                  >Revered</option>
-                </select>
-              </div>
-
-              <div class="dropdown-item">
-                <label>Cult of Solael</label>
-                <select name="standing-solael">
-                  <option value="friendly" {% if data['Cult of Solael'] == 'friendly' %}selected{% endif %}>Friendly</option>
-                  <option value="respected" {% if data['Cult of Solael'] == 'respected' %}selected{% endif %}>Respected</option>
-                  <option value="honored" {% if data['Cult of Solael'] == 'honored' %}selected{% endif %}>Honored</option>
-                  <option value="revered" 
-                    {% if data['Cult of Solael'] == 'revered' or not data['Cult of Solael'] %}selected{% endif %}
-                  >Revered</option>
-                </select>
-              </div>
-
-            </div>
-          <br>
-          </div>
-
-      </div>
-
-      <!-- Submit button outside the tabs so it's always visible -->
       <button type="submit" class="optimize-btn">🚀 Run Optimization</button>
-
     </form>
-    <!-- Results/Final Resistances remain unmodified below... -->
 
     {% if results %}
     <div class="section results">
@@ -461,20 +184,9 @@
 
   </div>
 
-<script>
-document.querySelectorAll('.tab').forEach(tab => {
-  tab.addEventListener('click', function() {
-    // Tab buttons
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    // Content boxes
-    document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
-    // Activate
-    tab.classList.add('active');
-    document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
-  });
-});
-</script>
-{% include 'button_language.html' %}
+  <script src="/static/index.js"></script>
+
+  <!-- Include the localization system -->
+  {% include 'button_language.html' %}
 </body>
 </html>
-
