@@ -224,6 +224,19 @@ function loadState() {
     });
 }
 
+// -- Scroll position persistence --
+document.querySelector('form').addEventListener('submit', () => {
+localStorage.setItem('scrollPos', window.scrollY);
+});
+
+window.addEventListener('load', () => {
+const scrollPos = localStorage.getItem('scrollPos');
+if (scrollPos !== null) {
+    window.scrollTo(0, parseInt(scrollPos));
+    localStorage.removeItem('scrollPos');
+}
+});
+
 // -- INITIALIZATION --
 document.addEventListener('DOMContentLoaded', function() {
     renderWeaponTemplate(weaponTemplates, 'template', 'one-hand-shield');
