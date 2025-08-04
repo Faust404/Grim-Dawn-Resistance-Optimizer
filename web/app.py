@@ -10,7 +10,7 @@ app = Flask(__name__)
 
 @app.route("/", methods=["GET", "POST"])
 def index():
-    selected_items_with_urls = None
+    selected_items_with_urls_and_tags = None
     final_resistances = None
     target_resistances = None
     gap_resistances = None
@@ -120,7 +120,7 @@ def index():
             unavailable_augment_slots=unavailable_augment_slots,
             player_faction_standings=player_faction_standings,
         )
-        selected_items_with_urls, final_resistances = optimizer.optimize_resistances()
+        selected_items_with_urls_and_tags, final_resistances = optimizer.optimize_resistances()
 
         # Calculate the resistance gaps if any after optimization
         gap_resistances = {
@@ -132,7 +132,7 @@ def index():
         "index.html",
         data=input_data,
         target_resistances=target_resistances,
-        results=selected_items_with_urls,
+        results=selected_items_with_urls_and_tags,
         final_resistances=final_resistances,
         gap_resistances=gap_resistances,
         component_slots=unavailable_component_slots,

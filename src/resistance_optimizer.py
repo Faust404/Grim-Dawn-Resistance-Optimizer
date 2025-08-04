@@ -224,13 +224,13 @@ class ResistanceOptimizer:
 
         return filtered_augments
 
-    def generate_item_urls(
+    def generate_item_urls_and_tags(
         self,
         selected_items: dict[str, dict[str, str]],
         component_df: pd.DataFrame,
         augment_df: pd.DataFrame,
     ) -> dict[str, dict[str, dict[str, str]]]:
-        """Grab item URLs based on item name for both components and augments.
+        """Generate item URLs and tags based on item name for both components and augments.
 
         Args:
             selected_items (dict[str, dict[str, str]]): Dictionary containing names of selected components and augments.
@@ -238,8 +238,8 @@ class ResistanceOptimizer:
             augment_df (pd.DataFrame): Dataframe containing info of useful augments.
 
         Returns:
-            dict[str, dict[str, dict[str, str]]]: Dictionary containing names and urls for selected components and augments.
-        """
+            dict[str, dict[str, dict[str, str]]]: Dictionary containing names, URLs, and tags for selected components and augments.
+            """
         combined_df: pd.DataFrame = pd.concat(
             [component_df, augment_df], ignore_index=True
         )
@@ -251,22 +251,38 @@ class ResistanceOptimizer:
             if not item_info.empty:
                 item_id: int = int(item_info["ID"].iloc[0])
                 return f"https://www.grimtools.com/db/items/{item_id}"
-            else:
-                return ""
+            return ""
 
-        selected_items_with_urls: dict[str, dict[str, dict[str, str]]] = {}
+        def get_item_tag(name: str) -> str:
+            if not name:
+                return ""
+            item_info: pd.Series = combined_df[combined_df["Item"] == name]
+            if not item_info.empty:
+                return str(item_info["ItemTag"].iloc[0])
+            return ""
+
+        selected_items_with_urls_and_tags: dict[str, dict[str, dict[str, str]]] = {}
         for slot, items in selected_items.items():
             augment_name: str = items.get("augment", "")
             component_name: str = items.get("component", "")
-            selected_items_with_urls[slot] = {
-                "Augment": {"Name": augment_name, "Url": get_item_url(augment_name)},
+            selected_items_with_urls_and_tags[slot] = {
+                "Augment": {
+                    "Name": augment_name,
+                    "Url": get_item_url(augment_name),
+                    "Tag": get_item_tag(augment_name)
+                },
                 "Component": {
                     "Name": component_name,
                     "Url": get_item_url(component_name),
+                    "Tag": get_item_tag(component_name)
                 },
             }
 
-        return selected_items_with_urls
+        return selected_items_with_urls_and_tags
+
+
+
+
 
     def generated_selected_items_dict(self) -> dict[str, dict[str, str]]:
         """Generates an empty dictionary based on the weapon template
@@ -443,8 +459,8 @@ class ResistanceOptimizer:
                 if key not in self.available_augment_slots:
                     selected_items[key]["augment"] = "Slot Unavailable"
 
-            selected_items_with_urls = self.generate_item_urls(
+            selected_items_with_urls_and_tags = self.generate_item_urls_and_tags(
                 selected_items, self.useful_components, self.useful_augments
             )
 
-            return selected_items_with_urls, final_resistances
+            return selected_items_with_urls_and_tags, final_resistances
