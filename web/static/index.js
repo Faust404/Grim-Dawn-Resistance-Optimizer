@@ -14,12 +14,13 @@ document.querySelectorAll('.tab').forEach(tab => {
 // DYNAMIC FORM GENERATION SCRIPT
 // -- DATA ARRAYS --
 const weaponTemplates = [
-    { label: "One-Handed Weapon + Shield",     value: "one-hand-shield" },
-    { label: "One-Handed Weapon + Off-Hand",   value: "one-hand-offhand" },
-    { label: "One-Handed Weapon + One-Handed Weapon", value: "one-hand-one-hand" },
-    { label: "Ranged Weapon + Off-Hand",       value: "ranged-offhand" },
-    { label: "Ranged Weapon + Ranged Weapon",  value: "ranged-ranged" },
-    { label: "Two-Handed Weapon",              value: "two-hand" }
+    { label: "One-Handed Melee-Caster Weapon + Shield",     value: "one-hand-shield" },
+    { label: "One-Handed Melee-Caster Weapon + Off-Hand",   value: "one-hand-offhand" },
+    { label: "One-Handed Melee-Caster Weapon + One-Handed Melee-Caster Weapon", value: "one-hand-one-hand" },
+    { label: "One-Handed Ranged Weapon + Off-Hand",       value: "ranged-offhand" },
+    { label: "One-Handed Ranged Weapon + One-Handed Ranged Weapon",  value: "ranged-ranged" },
+    { label: "Two-Handed Melee Weapon",              value: "two-hand-melee" },
+    { label: "Two-Handed Ranged Weapon",              value: "two-hand-ranged" }
 ];
 
 const resistances = [
@@ -47,7 +48,7 @@ const targetResistances = [
 ];
 
 const componentSlots = [
-    { label: "Head",      name: "component-head" },
+    { label: "Helm",      name: "component-head" },
     { label: "Chest",     name: "component-chest" },
     { label: "Shoulders", name: "component-shoulder" },
     { label: "Gloves",    name: "component-hand" },
@@ -62,7 +63,7 @@ const componentSlots = [
     { label: "Off-Hand/Shield", name: "component-offhand-shield" }
 ];
 const augmentSlots = [
-    { label: "Head",      name: "augment-head" },
+    { label: "Helm",      name: "augment-head" },
     { label: "Chest",     name: "augment-chest" },
     { label: "Shoulders", name: "augment-shoulder" },
     { label: "Gloves",    name: "augment-hand" },

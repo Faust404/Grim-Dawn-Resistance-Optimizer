@@ -47,16 +47,17 @@ class ResistanceOptimizer:
             "Boots",
             "Belt",
             "Amulet",
-            "Ring1",
-            "Ring2",
+            "Ring 1",
+            "Ring 2",
             "Medal",
-            "One-Handed1",
-            "One-Handed2",
-            "Two-Handed",
-            "Ranged1",
-            "Ranged2",
-            "Off-Hand",
-            "Shield",
+            'Melee-Caster-1h 1',
+            'Melee-Caster-1h 2',
+            'Ranged-1h 1',
+            'Ranged-1h 2',
+            'Melee-2h',
+            'Ranged-2h',
+            'Off-Hand',
+            'Shield',
         ]
 
         self.resistance_types: list[str] = [
@@ -127,11 +128,11 @@ class ResistanceOptimizer:
         available_gear_slots = self.process_weapon_template(available_gear_slots)
 
         for slot, status in unavailable_gear_slots.items():
-            gear_to_remove = []
+            gear_to_remove: list[str] = []
             if (status is True) and (slot == "Weapon"):
-                gear_to_remove = ["One-Handed1", "One-Handed2", "Ranged1", "Ranged2", "Two-Handed"]
+                gear_to_remove = ["Melee-Caster-1h 1", "Melee-Caster-1h 2", "Ranged-1h 1", "Ranged-1h 2", "Melee-2h", "Ranged-2h"]
             elif (status is True) and (slot == "Off-Hand/Shield"):
-                gear_to_remove = ["One-Handed2", "Ranged2", "Off-Hand", "Shield"]
+                gear_to_remove = ["Melee-Caster-1h 2", "Ranged-1h 2", "Off-Hand", "Shield"]
             elif status is True:
                 gear_to_remove = [slot]
             available_gear_slots = self.remove_multiple_gear_slots(available_gear_slots, gear_to_remove)
@@ -164,19 +165,33 @@ class ResistanceOptimizer:
         Returns:
             list[str]: List of available gear slots
         """
-        gear_to_remove = []
+        weapon_template_gear_slots: list[str] = [
+            'Melee-Caster-1h 1',
+            'Melee-Caster-1h 2',
+            'Ranged-1h 1',
+            'Ranged-1h 2',
+            'Melee-2h',
+            'Ranged-2h',
+            'Off-Hand',
+            'Shield',
+        ]
+        gear_to_remove: list[str] = []
+        gear_to_keep: list[str] = []
         if self.weapon_template == "one-hand-shield":
-            gear_to_remove = ["One-Handed2", "Off-Hand", "Ranged1", "Ranged2", "Two-Handed"]
+            gear_to_keep = ["Melee-Caster-1h 1", "Shield"]
         elif self.weapon_template == "one-hand-offhand":
-            gear_to_remove = ["One-Handed2", "Shield", "Ranged1", "Ranged2", "Two-Handed"]
+            gear_to_keep = ["Melee-Caster-1h 1", "Off-Hand"]
         elif self.weapon_template == "one-hand-one-hand":
-            gear_to_remove = ["Off-Hand", "Shield", "Ranged1", "Ranged2", "Two-Handed"]
+            gear_to_keep = ["Melee-Caster-1h 1", "Melee-Caster-1h 2"]
         elif self.weapon_template == "ranged-offhand":
-            gear_to_remove = ["One-Handed1", "One-Handed2", "Shield", "Ranged2", "Two-Handed"]
+            gear_to_keep = ["Ranged-1h 1", "Off-Hand"]
         elif self.weapon_template == "ranged-ranged":
-            gear_to_remove = ["One-Handed1", "One-Handed2", "Off-Hand", "Shield", "Two-Handed"]
-        elif self.weapon_template == "two-hand":
-            gear_to_remove = ["One-Handed1", "One-Handed2", "Off-Hand", "Shield", "Ranged1", "Ranged2"]
+            gear_to_keep = ["Ranged-1h 1", "Ranged-1h 2"]
+        elif self.weapon_template == "two-hand-melee":
+            gear_to_keep = ["Melee-2h"]
+        elif self.weapon_template == "two-hand-ranged":
+            gear_to_keep = ["Ranged-2h"]
+        gear_to_remove = [gear_piece for gear_piece in weapon_template_gear_slots if gear_piece not in gear_to_keep]
         available_gear_slots = self.remove_multiple_gear_slots(available_gear_slots, gear_to_remove)
     
         return available_gear_slots
@@ -258,7 +273,7 @@ class ResistanceOptimizer:
                 return ""
             item_info: pd.Series = combined_df[combined_df["Item"] == name]
             if not item_info.empty:
-                return str(item_info["ItemTag"].iloc[0])
+                return str(item_info["Item Tag"].iloc[0])
             return ""
 
         selected_items_with_urls_and_tags: dict[str, dict[str, dict[str, str]]] = {}
