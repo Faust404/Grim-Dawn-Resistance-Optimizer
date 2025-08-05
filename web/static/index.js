@@ -60,7 +60,7 @@ const componentSlots = [
     { label: "Ring 2",    name: "component-ring2" },
     { label: "Medal",     name: "component-medal" },
     { label: "Weapon",    name: "component-weapon" },
-    { label: "Off-Hand/Shield", name: "component-offhand-shield" }
+    { label: "Weapon2/Off-Hand/Shield", name: "component-offhand-shield" }
 ];
 const augmentSlots = [
     { label: "Helm",      name: "augment-head" },
@@ -75,7 +75,7 @@ const augmentSlots = [
     { label: "Ring 2",    name: "augment-ring2" },
     { label: "Medal",     name: "augment-medal" },
     { label: "Weapon",    name: "augment-weapon" },
-    { label: "Off-Hand/Shield", name: "augment-offhand-shield" }
+    { label: "Weapon2/Off-Hand/Shield", name: "augment-offhand-shield" }
 ];
 
 const factions = [

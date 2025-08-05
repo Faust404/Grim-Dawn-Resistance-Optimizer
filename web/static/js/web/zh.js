@@ -44,7 +44,7 @@ web_l10n_texts['zh'] = {
     "Ring 2":"戒指 2",
     "Medal":"勋章",
     "Weapon":"武器",
-    "Off-Hand/Shield":"副手/盾牌",
+    "Weapon2/Off-Hand/Shield":"武器2/副手/盾牌",
     
     // 声望部分
     "⚙️ Player Faction Standing":"⚙️ 角色各阵营声望",
