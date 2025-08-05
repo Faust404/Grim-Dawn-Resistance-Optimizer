@@ -94,7 +94,10 @@ web_l10n_texts['zh'] = {
     "Off-Hand":"副手",
     "Component":"镶嵌物",
     "Augment":"附魔物",
-    
+
+    "⚙️ Item Blacklist": "⚙️ 商品黑名单",
+    "Select Components to Blacklist:": "选择要列入黑名单的组件:",
+    "Select Augments to Blacklist:": "选择要列入黑名单的增强项:",
     
     // 结果部分-抗性
     "Final Resistances":"最终抗性",

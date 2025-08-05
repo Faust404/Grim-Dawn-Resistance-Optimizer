@@ -1,12 +1,19 @@
+import os
 import sys
 
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, send_from_directory
 
 sys.path.append(".")  # Adjust path to import ResistanceOptimizer module
 from src.resistance_optimizer import ResistanceOptimizer
 
 app = Flask(__name__)
 
+# Serve CSV files from sibling 'data' folder
+@app.route('/data/<path:filename>')
+def custom_static(filename):
+    # Adjust the path below to the absolute or relative path to your 'data' folder
+    data_folder = os.path.abspath(os.path.join(app.root_path, '..', 'data'))
+    return send_from_directory(data_folder, filename)
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -104,6 +111,9 @@ def index():
             "Cult of Solael": request.form.get("standing-solael", "Revered"),
         }
 
+        component_blacklist = request.form.getlist('component_blacklist[]')
+        augment_blacklist = request.form.getlist('augment_blacklist[]')
+
         # Consolidate input data for enabling persistance on the frontend
         input_data = {}
         input_data["Character Level"] = char_level
@@ -118,6 +128,8 @@ def index():
             weapon_template=weapon_template,
             unavailable_component_slots=unavailable_component_slots,
             unavailable_augment_slots=unavailable_augment_slots,
+            component_blacklist=component_blacklist,
+            augment_blacklist=augment_blacklist,
             player_faction_standings=player_faction_standings,
         )
         selected_items_with_urls_and_tags, final_resistances = optimizer.optimize_resistances()

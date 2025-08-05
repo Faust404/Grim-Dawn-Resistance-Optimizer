@@ -150,7 +150,68 @@ function renderFactionDropdowns(factions, options, containerId) {
     });
 }
 
-    // Save state to localStorage
+// Function to render multi-select options
+function renderNameMultiSelect(list, selectId) {
+    const sel = document.getElementById(selectId);
+    sel.innerHTML = '';
+    list.forEach(name => {
+        const opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = name;
+        sel.appendChild(opt);
+    });
+}
+
+// Store Choices instances for multi-selects
+let componentChoices = null;
+let augmentChoices = null;
+
+function initItemChoices(selectId) {
+    if (selectId === 'component-blacklist' && componentChoices) {
+        componentChoices.destroy();
+        componentChoices = null;
+    }
+    if (selectId === 'augment-blacklist' && augmentChoices) {
+        augmentChoices.destroy();
+        augmentChoices = null;
+    }
+    
+    const instance = new Choices('#' + selectId, {
+        removeItemButton: true,
+        searchEnabled: true,
+        placeholderValue: 'Type an item name...'
+    });
+    
+    if (selectId === 'component-blacklist') {
+        componentChoices = instance;
+    } else if (selectId === 'augment-blacklist') {
+        augmentChoices = instance;
+    }
+}
+
+// Fetch and parse CSV to extract 'Item' column and populate the dropdown
+function loadNamesFromCSV(url, selectId) {
+    return fetch(url)
+        .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.text();
+        })
+        .then(csvText => {
+        const results = Papa.parse(csvText, { header: true, skipEmptyLines: true });
+        const items = results.data.map(row => row.Item).filter(item => !!item);
+        renderNameMultiSelect(items, selectId);
+        initItemChoices(selectId);
+        })
+        .catch(error => {
+        console.error('Failed to load or parse CSV:', error);
+        // Still resolve so Promise.all won't block
+        return Promise.resolve();
+        });
+}
+
+// Save state to localStorage
 function saveState() {
     const formData = {};
 
@@ -180,6 +241,10 @@ function saveState() {
     [...document.querySelectorAll('#faction-dropdowns-section select')].forEach(select => {
     formData[select.name] = select.value;
     });
+
+    // Save multi-selects via Choices instances
+    formData['component_blacklist'] = componentChoices ? componentChoices.getValue(true) : [];
+    formData['augment_blacklist'] = augmentChoices ? augmentChoices.getValue(true) : [];
 
     localStorage.setItem('grimDawnOptimizerForm', JSON.stringify(formData));
     // console.log('State saved to localStorage:', formData);
@@ -223,6 +288,14 @@ function loadState() {
     [...document.querySelectorAll('#faction-dropdowns-section select')].forEach(select => {
     if (formData[select.name] !== undefined) select.value = formData[select.name];
     });
+
+    // Restore blacklist multi-selects AFTER they are initialized
+    if (componentChoices && Array.isArray(formData['component_blacklist'])) {
+        componentChoices.setValue(formData['component_blacklist']);
+    }
+    if (augmentChoices && Array.isArray(formData['augment_blacklist'])) {
+        augmentChoices.setValue(formData['augment_blacklist']);
+    }
 }
 
 // -- Scroll position persistence --
@@ -281,7 +354,7 @@ document.querySelectorAll('.tab').forEach(tab => {
     });
 });
 
-// -- INITIALIZATION --
+// INITIALIZATION
 document.addEventListener('DOMContentLoaded', function() {
     renderWeaponTemplate(weaponTemplates, 'template', 'one-hand-shield');
     renderResistances(resistances, 'resistances-section');
@@ -289,28 +362,36 @@ document.addEventListener('DOMContentLoaded', function() {
     renderCheckboxGroup(componentSlots, 'component-slots-section');
     renderCheckboxGroup(augmentSlots, 'augment-slots-section');
     renderFactionDropdowns(factions, factionOptions, 'faction-dropdowns-section');
-    // Call localization tagging and text update from button_language.html
+
+    // Load CSVs and initialize both multi-selects before loading the saved state
+    Promise.all([
+        loadNamesFromCSV('/data/component_data.csv', 'component-blacklist'),
+        loadNamesFromCSV('/data/augment_data.csv', 'augment-blacklist')
+    ]).then(() => {
+        loadState();
+
+        // Attach saveState event listeners after initialization and state restore
+        document.getElementById('template').addEventListener('change', saveState);
+        document.getElementById('char-level').addEventListener('input', saveState);
+
+        document.querySelectorAll('#resistances-section input[type="number"], #target-resistances-section input[type="number"]').forEach(input => {
+            input.addEventListener('input', saveState);
+        });
+
+        document.querySelectorAll('#component-slots-section input[type="checkbox"], #augment-slots-section input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', saveState);
+        });
+
+        document.querySelectorAll('#faction-dropdowns-section select').forEach(select => {
+            select.addEventListener('change', saveState);
+        });
+
+        if (componentChoices)
+            componentChoices.passedElement.element.addEventListener('change', saveState);
+        if (augmentChoices)
+            augmentChoices.passedElement.element.addEventListener('change', saveState);
+    });
+
     if (window.setLanguageTags) window.setLanguageTags();
     if (window.updateLocalizedText) window.updateLocalizedText();
-
-    // Load saved form state
-    loadState();
-
-    // Attach listeners to save changes on input
-    const saveInputs = () => saveState();
-
-    document.getElementById('template').addEventListener('change', saveInputs);
-    document.getElementById('char-level').addEventListener('input', saveInputs);
-
-    document.querySelectorAll('#resistances-section input[type="number"], #target-resistances-section input[type="number"]').forEach(input => {
-    input.addEventListener('input', saveInputs);
-    });
-
-    document.querySelectorAll('#component-slots-section input[type="checkbox"], #augment-slots-section input[type="checkbox"]').forEach(checkbox => {
-    checkbox.addEventListener('change', saveInputs);
-    });
-
-    document.querySelectorAll('#faction-dropdowns-section select').forEach(select => {
-    select.addEventListener('change', saveInputs);
-    });
 });

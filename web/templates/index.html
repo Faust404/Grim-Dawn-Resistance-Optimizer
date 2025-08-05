@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Grim Dawn Resistance Optimizer</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
   <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
@@ -62,6 +63,7 @@
 
       <!-- ADVANCED TAB CONTENT -->
       <div class="tab-content" id="tab-advanced">
+
         <div class="section">
           <h2>⚙️ Player Target Resistances</h2>
           <div class="form-group">
@@ -74,6 +76,21 @@
           <h2>⚙️ Player Faction Standing</h2>
           <div id="faction-dropdowns-section" class="dropdown-grid"></div>
         </div>
+
+        <div class="section blacklist-section">
+          <h2>⚙️ Item Blacklist</h2>
+          <div class="blacklist-row">
+            <div class="blacklist-group">
+              <label for="component-blacklist" class="blacklist-label">Select Components to Blacklist:</label>
+              <select id="component-blacklist" name="component_blacklist[]" multiple></select>
+            </div>
+            <div class="blacklist-group">
+              <label for="augment-blacklist" class="blacklist-label">Select Augments to Blacklist:</label>
+              <select id="augment-blacklist" name="augment_blacklist[]" multiple></select>
+            </div>
+          </div>
+        </div>
+
       </div>
 
       <button type="submit" class="optimize-btn">🚀 Run Optimization</button>
@@ -184,6 +201,8 @@
 
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
   <script src="/static/index.js"></script>
 
   <!-- Include the localization system -->

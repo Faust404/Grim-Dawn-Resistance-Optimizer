@@ -17,6 +17,8 @@ class ResistanceOptimizer:
     available_component_slots: list[str] = None
     unavailable_augment_slots: dict[str, bool] = None
     available_augment_slots: list[str] = None
+    component_blacklist: list[str] = None
+    augment_blacklist: list[str] = None
 
     player_faction_standings: dict[str, str] = None
 
@@ -94,18 +96,23 @@ class ResistanceOptimizer:
         component_df: pd.DataFrame = pd.read_csv(self.component_csv_path)
         augment_df: pd.DataFrame = pd.read_csv(self.augment_csv_path)
 
+        # Filter components based on blacklist
+        filtered_component_df: pd.DataFrame = component_df[~component_df['Item'].isin(self.component_blacklist)]
         # Remove components that have no resistance values
-        self.useful_components = component_df[
-            (component_df[self.resistance_types] != 0).any(axis=1)
-            & (component_df["Required Player Level"] <= self.character_level)
+        self.useful_components = filtered_component_df[
+            (filtered_component_df[self.resistance_types] != 0).any(axis=1)
+            & (filtered_component_df["Required Player Level"] <= self.character_level)
         ]
         self.useful_components = self.useful_components.reset_index(drop=True)
 
         # First filter augments based on player faction standings
-        filtered_augment_df = self.filter_augment_db(augment_df)
+        filtered_augment_df: pd.DataFrame = self.filter_augment_db(augment_df)
+        # Filter augments based on blacklist
+        filtered_augment_df = filtered_augment_df[~filtered_augment_df['Item'].isin(self.augment_blacklist)]
         # Remove augments that have no resistances values
         self.useful_augments = filtered_augment_df[
             (filtered_augment_df[self.resistance_types] != 0).any(axis=1)
+            # & (filtered_augment_df[~filtered_augment_df['Item'].isin(self.augment_blacklist)])
             & (filtered_augment_df["Required Player Level"] <= self.character_level)
         ]
         self.useful_augments = self.useful_augments.reset_index(drop=True)

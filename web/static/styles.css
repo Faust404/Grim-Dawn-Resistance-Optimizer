@@ -298,6 +298,125 @@ input[type="checkbox"]:focus-visible {
     box-shadow: 0 0 6px rgba(48, 196, 124, 0.6);
 }
 
+/* Container for Blacklist Section (reuse your section/theme styles) */
+/* For the label "Select Items to Blacklist:" to match other labels */
+.blacklist-row {
+    display: flex;
+    gap: 24px; /* space between the two selects */
+    flex-wrap: wrap; /* wrap on narrow screens */
+}
+
+/* Each group takes roughly half of the container or adjusts */
+.blacklist-group {
+    flex: 1 1 48%; /* grow, shrink, basis ~48% */
+    min-width: 250px; /* prevent becoming too narrow */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Labels maintain styling and spacing */
+.blacklist-label {
+    font-weight: 600;
+    color: var(--accent-green);
+    margin-bottom: 0.6em;
+    font-size: 1.07em;
+    letter-spacing: 0.2px;
+    display: block;
+}
+
+/* Make sure select fills the group */
+.blacklist-group select {
+    width: 100%;
+}
+
+/* Container and main parts styling for Choices.js multi-select */
+.choices,
+.choices__inner,
+.choices__list--multiple {
+    background: var(--input-bg) !important;
+    color: var(--input-fg) !important;
+    border-color: var(--input-border);
+    border-radius: 9px !important;
+    min-height: 48px;
+}
+
+/* Inner wrapper with border */
+.choices__inner {
+    border: 2px solid var(--input-border);
+}
+
+/* Multi-select tags container */
+.choices__list--multiple {
+    background: var(--input-bg) !important;
+    border: none;
+    box-shadow: none;
+    padding: 7px 8px 4px 8px;
+    color: var(--input-fg);
+}
+
+/* Input inside Choices multi-select */
+.choices__input {
+    background: var(--input-bg) !important;
+    color: var(--input-fg);
+    font-size: 1em;
+    min-width: 200px;
+    outline: none;
+    border: none;
+}
+
+/* Dropdown list styling */
+.choices__list--dropdown,
+.choices[aria-expanded='true'] {
+    background: var(--input-bg) !important;
+    color: var(--input-fg) !important;
+    border: 2px solid var(--input-border);
+    border-radius: 9px;
+    box-shadow: 0 8px 32px 0 rgba(22,24,37,0.42);
+    margin-top: 5px;
+    z-index: 9999;
+}
+
+/* Highlight item on hover in dropdown */
+.choices__item--selectable.is-highlighted {
+    background: var(--accent-green) !important;
+    color: #202522 !important;
+}
+
+/* Selected tags styling */
+.choices__list--multiple .choices__item {
+    background: var(--accent-green);
+    color: #202522;
+    border-radius: 17px;
+    margin: 2px 7px 2px 0;
+    font-size: 1em;
+    padding: 0.3em 1.2em 0.3em 0.8em;
+    font-weight: 700;
+    box-shadow: 0 2px 8px 0 rgba(48,196,124,0.13);
+    display: inline-flex;
+    align-items: center;
+    transition: background 0.15s;
+}
+
+/* Remove button styling */
+.choices__item .choices__button {
+    color: #fff;
+    opacity: 1;
+    font-size: 1.3em;
+    cursor: pointer;
+    border: none;
+    line-height: 1em;
+    padding: 0 6px 0 2px;
+    margin-right: -2px;
+    margin-top: -3px;
+}
+
+/* Placeholder text styling */
+.choices__placeholder,
+.choices[data-type*=select-one] .choices__input {
+    color: #bed9cf;
+    opacity: 1;
+}
+
 /* Results section */
 .section.results {
     margin-top: 2.5em;
