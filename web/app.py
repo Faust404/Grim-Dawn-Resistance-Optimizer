@@ -19,12 +19,13 @@ def custom_static(filename):
 def index():
     selected_items_with_urls_and_tags = None
     final_resistances = None
-    final_armor_abs_percentage = None
     target_resistances = None
     gap_resistances = None
     input_data = None
     unavailable_component_slots = None
     unavailable_augment_slots = None
+    final_armor_abs_percentage: int = 0
+    gap_armor_abs_percentage: int = 0
     if request.method == "POST":
         weapon_template = request.form.get("template")
         char_level = int(request.form.get("char-level", 100))
