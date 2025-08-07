@@ -142,13 +142,10 @@ def index():
 
     return render_template(
         "index.html",
-        data=input_data,
         target_resistances=target_resistances,
         results=selected_items_with_urls_and_tags,
         final_resistances=final_resistances,
         gap_resistances=gap_resistances,
-        component_slots=unavailable_component_slots,
-        augment_slots=unavailable_augment_slots,
     )
 
 
