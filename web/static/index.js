@@ -221,6 +221,9 @@ function saveState() {
     // Character level
     formData['char-level'] = document.getElementById('char-level').value;
 
+    // Current armor absorption value
+    formData['armor-abs-value'] = document.getElementById('armor-abs-value').value;
+
     // Resistances inputs
     [...document.querySelectorAll('#resistances-section input[type="number"]')].forEach(input => {
     formData[input.name] = input.value;
@@ -264,6 +267,11 @@ function loadState() {
     // Restore character level
     if (formData['char-level'] !== undefined) {
     document.getElementById('char-level').value = formData['char-level'];
+    }
+
+    // Restore current armor abs value
+    if (formData['armor-abs-value'] !== undefined) {
+    document.getElementById('armor-abs-value').value = formData['armor-abs-value'];
     }
 
     // Restore resistances
@@ -373,6 +381,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Attach saveState event listeners after initialization and state restore
         document.getElementById('template').addEventListener('change', saveState);
         document.getElementById('char-level').addEventListener('input', saveState);
+        document.getElementById('armor-abs-value').addEventListener('input', saveState);
 
         document.querySelectorAll('#resistances-section input[type="number"], #target-resistances-section input[type="number"]').forEach(input => {
             input.addEventListener('input', saveState);

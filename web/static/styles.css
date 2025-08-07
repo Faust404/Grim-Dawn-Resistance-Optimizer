@@ -141,6 +141,26 @@ input:focus, select:focus {
     cursor: not-allowed;
 }
 
+#char-level-row {
+    display: flex;
+    gap: 16px; /* spacing between inputs */
+    flex-wrap: wrap;
+}
+
+.char-input-group {
+    width: 210px; /* fixed width */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Optional: Make labels consistent */
+.char-input-group label {
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: var(--accent-green);
+}
+
+
 .tabs {
     display: flex;
     gap: 6px;

@@ -19,6 +19,7 @@ def custom_static(filename):
 def index():
     selected_items_with_urls_and_tags = None
     final_resistances = None
+    final_armor_abs_percentage = None
     target_resistances = None
     gap_resistances = None
     input_data = None
@@ -27,6 +28,7 @@ def index():
     if request.method == "POST":
         weapon_template = request.form.get("template")
         char_level = int(request.form.get("char-level", 100))
+        current_armor_abs_percentage = int(request.form.get("armor-abs-value", 70))
         input_resistances = {
             "Fire Resistance": int(request.form.get("current-fire", 40)),
             "Cold Resistance": int(request.form.get("current-cold", 40)),
@@ -123,6 +125,7 @@ def index():
 
         optimizer = ResistanceOptimizer(
             character_level=char_level,
+            current_armor_abs_percentage=current_armor_abs_percentage,
             current_resistances=input_resistances,
             target_resistances=target_resistances,
             weapon_template=weapon_template,
@@ -132,13 +135,14 @@ def index():
             augment_blacklist=augment_blacklist,
             player_faction_standings=player_faction_standings,
         )
-        selected_items_with_urls_and_tags, final_resistances = optimizer.optimize_resistances()
+        selected_items_with_urls_and_tags, final_resistances, final_armor_abs_percentage = optimizer.optimize_resistances()
 
         # Calculate the resistance gaps if any after optimization
         gap_resistances = {
             res: max(0, target_resistances[res] - final_resistances[res])
             for res in optimizer.resistance_types
         }
+        gap_armor_abs_percentage=int(max(100 - final_armor_abs_percentage, 0))
 
     return render_template(
         "index.html",
@@ -146,6 +150,8 @@ def index():
         results=selected_items_with_urls_and_tags,
         final_resistances=final_resistances,
         gap_resistances=gap_resistances,
+        final_armor_abs_percentage=int(final_armor_abs_percentage),
+        gap_armor_abs_percentage=gap_armor_abs_percentage,
     )
 
 

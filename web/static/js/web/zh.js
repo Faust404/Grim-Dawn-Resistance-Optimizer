@@ -100,7 +100,7 @@ web_l10n_texts['zh'] = {
     "Select Augments to Blacklist:": "选择要列入黑名单的增强项:",
     
     // 结果部分-抗性
-    "Final Resistances":"最终抗性",
+    "Final Values":"最终值",
     "Type":"类别",
     "Final":"最终",
     "Target":"目标",
@@ -114,5 +114,6 @@ web_l10n_texts['zh'] = {
     "Vitality Resistance":"活力抗性",
     "Aether Resistance":"虚化抗性",
     "Chaos Resistance":"混乱抗性",
+    "Armor Absorption":"护甲吸收",
 
 }

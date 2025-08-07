@@ -3,6 +3,7 @@ from dataclasses import dataclass
 import pandas as pd
 import pulp
 from icecream import ic
+from math import ceil
 
 
 @dataclass
@@ -30,11 +31,15 @@ class ResistanceOptimizer:
     augment_csv_path: str = "data/augment_data.csv"
     weapon_template: str = "one-hand-offhand"
     character_level: int = 100
+    current_armor_abs_percentage: int = 70
+    required_armor_abs_percentage: int = 43
+    final_armor_abs_percentage: int = 70
 
     def __post_init__(self):
         """Post Init function to perform certain operations on object creation."""
         self.set_defaults()
         self.calculate_remaining_resistances()
+        self.calculate_required_armor_abs_percentage()
         self.filter_useful_components_augments()
         self.available_component_slots = self.check_available_slots(self.unavailable_component_slots)
         self.available_augment_slots = self.check_available_slots(self.unavailable_augment_slots)
@@ -90,6 +95,10 @@ class ResistanceOptimizer:
             for res in self.resistance_types
         }
 
+    def calculate_required_armor_abs_percentage(self) -> None:
+        """Calculate the required armor absorption percentage based on current armor absorption value."""
+        self.required_armor_abs_percentage = ceil(((100 - self.current_armor_abs_percentage)/self.current_armor_abs_percentage)*100)
+
     def filter_useful_components_augments(self) -> None:
         """Filter out useful components and augments based on character level and player faction standings."""
         # Load the component and augment databases
@@ -98,10 +107,9 @@ class ResistanceOptimizer:
 
         # Filter components based on blacklist
         filtered_component_df: pd.DataFrame = component_df[~component_df['Item'].isin(self.component_blacklist)]
-        # Remove components that have no resistance values
+        # Remove components that don't meet required player level
         self.useful_components = filtered_component_df[
-            (filtered_component_df[self.resistance_types] != 0).any(axis=1)
-            & (filtered_component_df["Required Player Level"] <= self.character_level)
+            (filtered_component_df["Required Player Level"] <= self.character_level)
         ]
         self.useful_components = self.useful_components.reset_index(drop=True)
 
@@ -109,11 +117,9 @@ class ResistanceOptimizer:
         filtered_augment_df: pd.DataFrame = self.filter_augment_db(augment_df)
         # Filter augments based on blacklist
         filtered_augment_df = filtered_augment_df[~filtered_augment_df['Item'].isin(self.augment_blacklist)]
-        # Remove augments that have no resistances values
+        # Remove augments that don't meet required player level
         self.useful_augments = filtered_augment_df[
-            (filtered_augment_df[self.resistance_types] != 0).any(axis=1)
-            # & (filtered_augment_df[~filtered_augment_df['Item'].isin(self.augment_blacklist)])
-            & (filtered_augment_df["Required Player Level"] <= self.character_level)
+            (filtered_augment_df["Required Player Level"] <= self.character_level)
         ]
         self.useful_augments = self.useful_augments.reset_index(drop=True)
 
@@ -302,10 +308,6 @@ class ResistanceOptimizer:
 
         return selected_items_with_urls_and_tags
 
-
-
-
-
     def generated_selected_items_dict(self) -> dict[str, dict[str, str]]:
         """Generates an empty dictionary based on the weapon template
         to store information of the items to be selected
@@ -352,6 +354,34 @@ class ResistanceOptimizer:
                 var_name = f"Item_{i}_{item['Item']}_in_{slot}"
                 augment_slot_vars[(i, slot)] = pulp.LpVariable(var_name, cat="Binary")
 
+        # Decision variables: binary variable for each component-slot combination that grants armor absorption
+        armor_abs_items = []
+        for i, item in self.useful_components.iterrows():
+            allowed_gear_slots = [slot for slot in self.available_component_slots if item[slot]]
+            for slot in allowed_gear_slots:
+                armor_inc = item.get("Armor Absorption %", 0)
+                if armor_inc > 0:
+                    armor_abs_items.append(("component", i, slot, armor_inc))   # Track type, row index, slot, and value
+        for i, item in self.useful_augments.iterrows():
+            allowed_gear_slots = [slot for slot in self.available_augment_slots if item[slot]]
+            for slot in allowed_gear_slots:
+                armor_inc = item.get("Armor Absorption %", 0)
+                if armor_inc > 0:
+                    armor_abs_items.append(("augment", i, slot, armor_inc))   # Track type, row index, slot, and value
+        
+        armor_abs_vars = {}
+        # Add components
+        armor_abs_vars.update({
+            ("component", i, slot): component_slot_vars[(i, slot)]
+            for kind, i, slot, inc in armor_abs_items if kind == "component"
+        })
+        # Add augments
+        armor_abs_vars.update({
+            ("augment", i, slot): augment_slot_vars[(i, slot)]
+            for kind, i, slot, inc in armor_abs_items if kind == "augment"
+        })
+        ic(armor_abs_vars)
+
         # Additional variables for resistance achievement tracking
         resistance_achieved = {}
         for resistance in self.resistance_types:
@@ -359,11 +389,15 @@ class ResistanceOptimizer:
                 f"Achieved_{resistance}", lowBound=0
             )
 
+        # Variable for armor absorption
+        armor_absorption_achieved = pulp.LpVariable("Achieved_ArmorAbsorption", lowBound=0)
+
         # Multi-objective function with weighted priorities
         # Weight for achieving target resistances (primary objective)
         # Penalty for number of items used (secondary objective)
         resistance_weight = 1  # Weight for resistance achievement
         item_penalty_weight = 1  # Penalty for each item used
+        armor_abs_weight = 100
 
         # Primary objective: Maximize resistance achievement while minimizing items
         resistance_objectives = []
@@ -392,8 +426,16 @@ class ResistanceOptimizer:
                 # This represents whether this item is used (in any slot)
                 total_augments_used.append(pulp.lpSum(item_vars_for_this_item))
 
+        # Secondary objective: Minimize number of armor absorption-granting items used
+        armor_absorption_items_used = pulp.lpSum([
+            armor_abs_vars[(kind, i, slot)]
+            for kind, i, slot, inc in armor_abs_items
+        ])
+
         prob += (
             resistance_weight * pulp.lpSum(resistance_objectives)
+            + armor_abs_weight * armor_absorption_achieved
+            - 10 * armor_absorption_items_used
             - item_penalty_weight * pulp.lpSum(total_components_used)
             - item_penalty_weight * pulp.lpSum(total_augments_used)
         )
@@ -446,7 +488,18 @@ class ResistanceOptimizer:
 
                 # Link the achieved variable to actual resistance gained (capped at needed amount)
                 prob += resistance_achieved[resistance] <= total_resistance_gained
+                # prob += resistance_achieved[resistance] >= total_resistance_gained
                 prob += resistance_achieved[resistance] <= needed  # Cap at what we need
+
+        # Constraint: Set armor absorption limits
+        armor_absorption_sum = pulp.lpSum(
+            armor_abs_vars[(kind, i, slot)] * inc
+            for kind, i, slot, inc in armor_abs_items
+        )
+        total_armor_abs_gained = pulp.lpSum(armor_absorption_sum)
+        prob += armor_absorption_achieved <= total_armor_abs_gained
+        # prob += armor_absorption_achieved >= self.required_armor_abs_percentage # Has to be a minimum of X
+        prob += armor_absorption_achieved <= self.required_armor_abs_percentage # Do not reward for crossing X%
 
         # Solve the problem
         prob.solve(pulp.PULP_CBC_CMD(msg=0))
@@ -457,12 +510,16 @@ class ResistanceOptimizer:
         if status == "Optimal" or status == "Infeasible":
             selected_items = self.generated_selected_items_dict()
             final_resistances = self.current_resistances.copy()
+            armor_absorption_percentage_gained = 0
 
             for i, item in self.useful_components.iterrows():
                 allowed_gear_slots = [slot for slot in self.available_component_slots if item[slot]]
                 for slot in allowed_gear_slots:
                     if (i, slot) in component_slot_vars and component_slot_vars[(i, slot)].varValue == 1:
                         selected_items[slot]["component"] = item["Item"]
+                        # Check how much increased armor absorption is gained from chosen components
+                        armor_absorption_percentage_gained += item.get("Armor Absorption %", 0)
+                        # Check how much resistances are gained from chosen components
                         for res in self.resistance_types:
                             final_resistances[res] += item[res]
 
@@ -471,6 +528,9 @@ class ResistanceOptimizer:
                 for slot in allowed_gear_slots:
                     if (i, slot) in augment_slot_vars and augment_slot_vars[(i, slot)].varValue == 1:
                         selected_items[slot]["augment"] = item["Item"]
+                        # Check how much increased armor absorption is gained from chosen augments
+                        armor_absorption_percentage_gained += item.get("Armor Absorption %", 0)
+                        # Check how much resistances are gained from chosen augments
                         for res in self.resistance_types:
                             final_resistances[res] += item[res]
 
@@ -485,4 +545,5 @@ class ResistanceOptimizer:
                 selected_items, self.useful_components, self.useful_augments
             )
 
-            return selected_items_with_urls_and_tags, final_resistances
+            self.final_armor_abs_percentage = round(self.current_armor_abs_percentage * (1 + (armor_absorption_percentage_gained/100)), 1)
+            return selected_items_with_urls_and_tags, final_resistances, self.final_armor_abs_percentage
