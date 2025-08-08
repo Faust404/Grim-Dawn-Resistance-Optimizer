@@ -16,6 +16,7 @@ web_l10n_texts['zh'] = {
     "Target Resistances:":"目标抗性",
     "⚙️ Configuration":"⚙️ 设置",
     "Character Level:":"角色等级：",
+    "Armor Absorption %:":"护甲吸收 %：",
     
     // 当前抗性部分
     "Current Resistances:":"当前抗性：",
@@ -62,8 +63,8 @@ web_l10n_texts['zh'] = {
     "Cult of Dreeg":"德里格教派",
     "Cult of Solael":"索拉尔教派",
     "Friendly":"友善",
-    "Respected":"敬重",
-    "Honored":"尊敬",
+    "Respected":"尊敬",
+    "Honored":"敬重",
     "Revered":"崇拜",
     
     // 执行部分
@@ -84,20 +85,20 @@ web_l10n_texts['zh'] = {
     "Ring 1":"戒指 1",
     "Ring 2":"戒指 2",
     "Medal":"勋章",
-    "Melee-Caster-1h 1":"近战-施法者-1h 1",
-    "Melee-Caster-1h 2":"近战-施法者-1h 2",
-    "Ranged-1h 1":"单手远程-1h 1",
-    "Ranged-1h 2":"单手远程-1h 2",
-    "Ranged-2h":"单手远程-2h",
-    "Melee-2h":"近战-2h",
+    "Melee-Caster-1h 1":"单手近战或施法武器 1",
+    "Melee-Caster-1h 2":"单手近战或施法武器 2",
+    "Ranged-1h 1":"单手远程武器 1",
+    "Ranged-1h 2":"单手远程武器 2",
+    "Ranged-2h":"双手远程武器",
+    "Melee-2h":"双手近战武器",
     "Shield":"盾牌",
     "Off-Hand":"副手",
     "Component":"镶嵌物",
     "Augment":"附魔物",
 
     "⚙️ Item Blacklist": "⚙️ 商品黑名单",
-    "Select Components to Blacklist:": "选择要列入黑名单的组件:",
-    "Select Augments to Blacklist:": "选择要列入黑名单的增强项:",
+    "Select Components to Blacklist:": "选择要列入黑名单的镶嵌物:",
+    "Select Augments to Blacklist:": "选择要列入黑名单的附魔物:",
     
     // 结果部分-抗性
     "Final Values":"最终值",
