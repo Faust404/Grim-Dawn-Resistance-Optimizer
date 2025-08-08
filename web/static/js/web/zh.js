@@ -16,7 +16,7 @@ web_l10n_texts['zh'] = {
     "Target Resistances:":"目标抗性",
     "⚙️ Configuration":"⚙️ 设置",
     "Character Level:":"角色等级：",
-    "Armor Absorption %:":"护甲吸收 %",
+    "Armor Absorption %:":"护甲吸收 %：",
     
     // 当前抗性部分
     "Current Resistances:":"当前抗性：",
