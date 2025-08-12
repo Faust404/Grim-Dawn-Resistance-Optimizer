@@ -380,7 +380,6 @@ class ResistanceOptimizer:
             ("augment", i, slot): augment_slot_vars[(i, slot)]
             for kind, i, slot, inc in armor_abs_items if kind == "augment"
         })
-        ic(armor_abs_vars)
 
         # Additional variables for resistance achievement tracking
         resistance_achieved = {}

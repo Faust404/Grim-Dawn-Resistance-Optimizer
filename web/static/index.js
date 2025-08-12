@@ -264,95 +264,48 @@ function loadNamesFromCSV(url, selectId) {
 // Save state to localStorage
 function saveState() {
     const formData = {};
-
-    // Save weapon template
     formData['template'] = document.getElementById('template').value;
-
-    // Character level
     formData['char-level'] = document.getElementById('char-level').value;
-
-    // Current armor absorption value
     formData['armor-abs-value'] = document.getElementById('armor-abs-value').value;
 
-    // Resistances inputs
-    [...document.querySelectorAll('#resistances-section input[type="number"]')].forEach(input => {
-    formData[input.name] = input.value;
-    });
-    [...document.querySelectorAll('#target-resistances-section input[type="number"]')].forEach(input => {
-    formData[input.name] = input.value;
-    });
+    [...document.querySelectorAll('#resistances-section input[type="number"], #target-resistances-section input[type="number"]')]
+        .forEach(input => formData[input.name] = input.value);
 
-    // Component & augment checkboxes
-    [...document.querySelectorAll('#component-slots-section input[type="checkbox"]')].forEach(input => {
-    formData[input.name] = input.checked;
-    });
-    [...document.querySelectorAll('#augment-slots-section input[type="checkbox"]')].forEach(input => {
-    formData[input.name] = input.checked;
-    });
+    [...document.querySelectorAll('#component-slots-section input[type="checkbox"], #augment-slots-section input[type="checkbox"]')]
+        .forEach(input => formData[input.name] = input.checked);
 
-    // Faction dropdowns
-    [...document.querySelectorAll('#faction-dropdowns-section select')].forEach(select => {
-    formData[select.name] = select.value;
-    });
+    [...document.querySelectorAll('#faction-dropdowns-section select')]
+        .forEach(select => formData[select.name] = select.value);
 
-    // Save multi-selects via Choices instances
     formData['component_blacklist'] = componentChoices ? componentChoices.getValue(true) : [];
     formData['augment_blacklist'] = augmentChoices ? augmentChoices.getValue(true) : [];
 
     localStorage.setItem('grimDawnOptimizerForm', JSON.stringify(formData));
-    // console.log('State saved to localStorage:', formData);
 }
 
-// Load state from localStorage, if available
 function loadState() {
     const saved = localStorage.getItem('grimDawnOptimizerForm');
     if (!saved) return;
     const formData = JSON.parse(saved);
 
-    // Restore weapon template
-    if (formData['template'] !== undefined) {
-    document.getElementById('template').value = formData['template'];
-    }
+    if (formData['template']) document.getElementById('template').value = formData['template'];
+    if (formData['char-level']) document.getElementById('char-level').value = formData['char-level'];
+    if (formData['armor-abs-value']) document.getElementById('armor-abs-value').value = formData['armor-abs-value'];
 
-    // Restore character level
-    if (formData['char-level'] !== undefined) {
-    document.getElementById('char-level').value = formData['char-level'];
-    }
+    [...document.querySelectorAll('#resistances-section input[type="number"], #target-resistances-section input[type="number"]')]
+        .forEach(input => { if (formData[input.name] !== undefined) input.value = formData[input.name]; });
 
-    // Restore current armor abs value
-    if (formData['armor-abs-value'] !== undefined) {
-    document.getElementById('armor-abs-value').value = formData['armor-abs-value'];
-    }
+    [...document.querySelectorAll('#component-slots-section input[type="checkbox"], #augment-slots-section input[type="checkbox"]')]
+        .forEach(input => { if (formData[input.name] !== undefined) input.checked = formData[input.name]; });
 
-    // Restore resistances
-    [...document.querySelectorAll('#resistances-section input[type="number"]')].forEach(input => {
-    if (formData[input.name] !== undefined) input.value = formData[input.name];
-    });
-    [...document.querySelectorAll('#target-resistances-section input[type="number"]')].forEach(input => {
-    if (formData[input.name] !== undefined) input.value = formData[input.name];
-    });
+    [...document.querySelectorAll('#faction-dropdowns-section select')]
+        .forEach(select => { if (formData[select.name] !== undefined) select.value = formData[select.name]; });
 
-    // Restore component slots checkboxes
-    [...document.querySelectorAll('#component-slots-section input[type="checkbox"]')].forEach(input => {
-    if (formData[input.name] !== undefined) input.checked = formData[input.name];
-    });
-
-    // Restore augment slots checkboxes
-    [...document.querySelectorAll('#augment-slots-section input[type="checkbox"]')].forEach(input => {
-    if (formData[input.name] !== undefined) input.checked = formData[input.name];
-    });
-
-    // Restore faction dropdowns
-    [...document.querySelectorAll('#faction-dropdowns-section select')].forEach(select => {
-    if (formData[select.name] !== undefined) select.value = formData[select.name];
-    });
-
-    // Restore blacklist multi-selects AFTER they are initialized
     if (componentChoices && Array.isArray(formData['component_blacklist'])) {
-        componentChoices.setChoiceByValue(formData['component_blacklist']);
+        componentChoices.setValue(formData['component_blacklist']);
     }
     if (augmentChoices && Array.isArray(formData['augment_blacklist'])) {
-        augmentChoices.setChoiceByValue(formData['augment_blacklist']);
+        augmentChoices.setValue(formData['augment_blacklist']);
     }
 }
 
