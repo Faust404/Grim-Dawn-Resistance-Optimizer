@@ -31,6 +31,11 @@ The tool aims to maximize your resistances with the least amount of components a
 7. Select your character's standing with various factions for better suggestions in the advanced tab.
 8. Hit the "Run Optimization" button
 
+## How to Add Other Languages
+1. Use `web/static/js/web/example.js` as a template and translate it into your desired language.  
+2. Provide the language pack from your game (if Grimtools already supports your language, you can skip this step).  
+3. Submit an issue in [Issues](../../issues) and attach the above files.
+
 # How to Self-Host
 You can use this docker-compose.yml to pull the image and deploy the container
 ```
