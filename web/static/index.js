@@ -178,57 +178,56 @@ function initItemChoices(list,selectId) {
         callbackOnCreateTemplates: function(strToEl, escapeForTemplate, getClassNames) {
             return {
               //Selected part  
-              item: ({ classNames }, data) => {
-                const choice = choiceItems.find(item => item.id === data.id);
-                const tag = choice?.customProperties?.tag || data.customProperties?.tag || '';
-                const label = data.label || '';
-                const value = data.value || '';
-                return strToEl(`
-                  <div
-                    id="choices--${selectId}-choice-${data.id}"
-                    class="${getClassNames(classNames.item).join(' ')} ${
-                      getClassNames(data.highlighted ? classNames.highlightedState : classNames.itemSelectable).join(' ')
-                    } ${data.placeholder ? classNames.placeholder : ''}"
-                    data-item
-                    data-id="${data.id}"
-                    data-value="${value}"
-                    ${data.active ? 'aria-selected="true"' : ''}
-                    ${data.disabled ? 'aria-disabled="true"' : ''}
-                    data-language-tag="${tag}"
-                    data-language-Tag-And-Source-EN="${label}"
-                  >
-                    ${label}
-                    <button type="button" class="${getClassNames(classNames.button).join(' ')}" data-button>x</button>
-                  </div>
-                `);
-              },
-              //To be selected
-              choice: ({ classNames }, data) => {
-                const tag = data.customProperties?.tag || '';
-                const label = data.label || '';
-                const value = data.value || '';
-                return strToEl(`
-                  <div
-                    id="choices--${selectId}-item-${data.id}"
-                    class="${getClassNames(classNames.item).join(' ')} ${getClassNames(classNames.itemChoice).join(' ')} ${
-                      getClassNames(data.disabled ? classNames.itemDisabled : classNames.itemSelectable).join(' ')
-                    }"
-                    data-select-text="${this.config.itemSelectText}"
-                    data-choice
-                    data-id="${data.id}"
-                    data-value="${value}"
-                    ${data.disabled ? 'data-choice-disabled aria-disabled="true"' : 'data-choice-selectable'}
-                    data-language-tag="${tag}"
-                    data-language-Tag-And-Source-EN="${label}"
-                    ${data.groupId > 0 ? 'role="treeitem"' : 'role="option"'}
-                  >
-                    ${label}
-                  </div>
-                `);
-              }
-            };
-          }
-
+                item: ({ classNames }, data) => {
+                    const choice = choiceItems.find(item => item.id === data.id);
+                    const tag = choice?.customProperties?.tag || data.customProperties?.tag || '';
+                    const label = data.label || '';
+                    const value = data.value || '';
+                    return strToEl(`
+                    <div
+                        id="choices--${selectId}-choice-${data.id}"
+                        class="${getClassNames(classNames.item).join(' ')} ${
+                        getClassNames(data.highlighted ? classNames.highlightedState : classNames.itemSelectable).join(' ')
+                        } ${data.placeholder ? classNames.placeholder : ''}"
+                        data-item
+                        data-id="${data.id}"
+                        data-value="${value}"
+                        ${data.active ? 'aria-selected="true"' : ''}
+                        ${data.disabled ? 'aria-disabled="true"' : ''}
+                        data-language-tag="${tag}"
+                        data-language-Tag-And-Source-EN="${label}"
+                    >
+                        ${label}
+                        <button type="button" class="${getClassNames(classNames.button).join(' ')}" data-button>x</button>
+                    </div>
+                    `);
+                },
+                //To be selected
+                choice: ({ classNames }, data) => {
+                    const tag = data.customProperties?.tag || '';
+                    const label = data.label || '';
+                    const value = data.value || '';
+                    return strToEl(`
+                    <div
+                        id="choices--${selectId}-item-${data.id}"
+                        class="${getClassNames(classNames.item).join(' ')} ${getClassNames(classNames.itemChoice).join(' ')} ${
+                        getClassNames(data.disabled ? classNames.itemDisabled : classNames.itemSelectable).join(' ')
+                        }"
+                        data-select-text="${this.config.itemSelectText}"
+                        data-choice
+                        data-id="${data.id}"
+                        data-value="${value}"
+                        ${data.disabled ? 'data-choice-disabled aria-disabled="true"' : 'data-choice-selectable'}
+                        data-language-tag="${tag}"
+                        data-language-Tag-And-Source-EN="${label}"
+                        ${data.groupId > 0 ? 'role="treeitem"' : 'role="option"'}
+                    >
+                        ${label}
+                    </div>
+                    `);
+                }
+                };
+            }
     });
 
     if (selectId === 'component-blacklist') {
@@ -302,10 +301,10 @@ function loadState() {
         .forEach(select => { if (formData[select.name] !== undefined) select.value = formData[select.name]; });
 
     if (componentChoices && Array.isArray(formData['component_blacklist'])) {
-        componentChoices.setValue(formData['component_blacklist']);
+        componentChoices.setChoiceByValue(formData['component_blacklist']);
     }
     if (augmentChoices && Array.isArray(formData['augment_blacklist'])) {
-        augmentChoices.setValue(formData['augment_blacklist']);
+        augmentChoices.setChoiceByValue(formData['augment_blacklist']);
     }
 }
 
