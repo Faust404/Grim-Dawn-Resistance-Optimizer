@@ -5,15 +5,11 @@ document.querySelectorAll('.tab').forEach(tab => {
     document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
     tab.classList.add('active');
     document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
-    // Update localization tags/texts so language switching works with just-rendered elements
-    if (window.setLanguageTags) window.setLanguageTags();
-    if (window.updateLocalizedText) window.updateLocalizedText();
     });
 });
 
-// ============================
-// DATA ARRAYS
-// ============================
+// DYNAMIC FORM GENERATION SCRIPT
+// -- DATA ARRAYS --
 const weaponTemplates = [
     { label: "One-Handed Melee-Caster Weapon + Shield",     value: "one-hand-shield" },
     { label: "One-Handed Melee-Caster Weapon + Off-Hand",   value: "one-hand-offhand" },
@@ -101,9 +97,7 @@ const factionOptions = [
     { value: "revered",   label: "Revered" }
 ];
 
-// ============================
-// RENDER FUNCTIONS
-// ============================
+// -- RENDER FUNCTIONS --
 function renderWeaponTemplate(templateArr, selectId, defaultValue) {
     const sel = document.getElementById(selectId);
     sel.innerHTML = '';
@@ -153,25 +147,11 @@ function renderFactionDropdowns(factions, options, containerId) {
     });
 }
 
-// Function to render multi-select options
-function renderNameMultiSelect(list, selectId) {
-    const sel = document.getElementById(selectId);
-    sel.innerHTML = '';
-    list.forEach(name => {
-        const opt = document.createElement('option');
-        opt.value = name;
-        opt.textContent = name;
-        sel.appendChild(opt);
-    });
-}
-
-// ============================
-// Choices.js Instances
-// ============================
+// Store Choices instances for multi-selects
 let componentChoices = null;
 let augmentChoices = null;
 
-function initItemChoices(selectId) {
+function initItemChoices(list,selectId) {
     if (selectId === 'component-blacklist' && componentChoices) {
         componentChoices.destroy();
         componentChoices = null;
@@ -180,13 +160,77 @@ function initItemChoices(selectId) {
         augmentChoices.destroy();
         augmentChoices = null;
     }
+    //Initialize the selection box using the choices built-in method
+    const choiceItems = list.map(obj => ({
+        value: String(obj.item),
+        label: String(obj.item),
+        selected: false,
+        customProperties: { tag: String(obj.tag) }
+    }));
     
     const instance = new Choices('#' + selectId, {
         removeItemButton: true,
         searchEnabled: true,
-        placeholderValue: 'Type an item name...'
+        choices: choiceItems,
+        placeholderValue: 'Type an item name...',
+        allowHTML: true, 
+        //Customize generated styles and data
+        callbackOnCreateTemplates: function(strToEl, escapeForTemplate, getClassNames) {
+            return {
+              //Selected part  
+              item: ({ classNames }, data) => {
+                const choice = choiceItems.find(item => item.id === data.id);
+                const tag = choice?.customProperties?.tag || data.customProperties?.tag || '';
+                const label = data.label || '';
+                const value = data.value || '';
+                return strToEl(`
+                  <div
+                    id="choices--${selectId}-choice-${data.id}"
+                    class="${getClassNames(classNames.item).join(' ')} ${
+                      getClassNames(data.highlighted ? classNames.highlightedState : classNames.itemSelectable).join(' ')
+                    } ${data.placeholder ? classNames.placeholder : ''}"
+                    data-item
+                    data-id="${data.id}"
+                    data-value="${value}"
+                    ${data.active ? 'aria-selected="true"' : ''}
+                    ${data.disabled ? 'aria-disabled="true"' : ''}
+                    data-language-tag="${tag}"
+                    data-language-Tag-And-Source-EN="${label}"
+                  >
+                    ${label}
+                    <button type="button" class="${getClassNames(classNames.button).join(' ')}" data-button>x</button>
+                  </div>
+                `);
+              },
+              //To be selected
+              choice: ({ classNames }, data) => {
+                const tag = data.customProperties?.tag || '';
+                const label = data.label || '';
+                const value = data.value || '';
+                return strToEl(`
+                  <div
+                    id="choices--${selectId}-item-${data.id}"
+                    class="${getClassNames(classNames.item).join(' ')} ${getClassNames(classNames.itemChoice).join(' ')} ${
+                      getClassNames(data.disabled ? classNames.itemDisabled : classNames.itemSelectable).join(' ')
+                    }"
+                    data-select-text="${this.config.itemSelectText}"
+                    data-choice
+                    data-id="${data.id}"
+                    data-value="${value}"
+                    ${data.disabled ? 'data-choice-disabled aria-disabled="true"' : 'data-choice-selectable'}
+                    data-language-tag="${tag}"
+                    data-language-Tag-And-Source-EN="${label}"
+                    ${data.groupId > 0 ? 'role="treeitem"' : 'role="option"'}
+                  >
+                    ${label}
+                  </div>
+                `);
+              }
+            };
+          }
+
     });
-    
+
     if (selectId === 'component-blacklist') {
         componentChoices = instance;
     } else if (selectId === 'augment-blacklist') {
@@ -205,9 +249,10 @@ function loadNamesFromCSV(url, selectId) {
         })
         .then(csvText => {
         const results = Papa.parse(csvText, { header: true, skipEmptyLines: true });
-        const items = results.data.map(row => row.Item).filter(item => !!item);
-        renderNameMultiSelect(items, selectId);
-        initItemChoices(selectId);
+        const items = results.data
+                .map(row => ({ item: row.Item, tag: row['Item Tag'] }))
+                .filter(obj => !!obj.item);
+        initItemChoices(items,selectId);
         })
         .catch(error => {
         console.error('Failed to load or parse CSV:', error);
@@ -216,9 +261,7 @@ function loadNamesFromCSV(url, selectId) {
         });
 }
 
-// ============================
-// State Persistence
-// ============================
+// Save state to localStorage
 function saveState() {
     const formData = {};
     formData['template'] = document.getElementById('template').value;
@@ -266,9 +309,7 @@ function loadState() {
     }
 }
 
-// ============================
-// Scroll persistence
-// ============================
+// -- Scroll position persistence --
 // Object to store scroll positions per tab
 const scrollPositions = {};
 
@@ -339,6 +380,33 @@ document.addEventListener('DOMContentLoaded', function() {
         loadNamesFromCSV('/data/augment_data.csv', 'augment-blacklist')
     ]).then(() => {
         loadState();
+        //After executing the loading state, set the language
+        const language = localStorage.getItem('language') || 'en';
+        setLanguageTags();
+        loadWebLanguageFilesAndUpdate(language);
+        loadDBLanguageFilesAndUpdate(language);
+
+        //Listen for selection click events and handle the language display of enchantments and inlays separately
+        const selectIds = ['component-blacklist', 'augment-blacklist'];
+        selectIds.forEach(selectId => {
+            const element = document.getElementById(selectId);
+            if (element) {
+                element.addEventListener('addItem', (event) => {
+                    const language = localStorage.getItem('language') || 'en';
+                    setTimeout(() => {
+                        loadDBLanguageFilesAndUpdate(language);
+                    }, 0);
+                });
+                element.addEventListener('removeItem', (event) => {
+                    const language = localStorage.getItem('language') || 'en';
+                    setTimeout(() => {
+                        loadDBLanguageFilesAndUpdate(language);
+                    }, 0);
+                });
+            } else {
+                console.error(`Element with id "${selectId}" not found`);
+            }
+        });
 
         // Attach saveState event listeners after initialization and state restore
         document.getElementById('template').addEventListener('change', saveState);
@@ -362,7 +430,4 @@ document.addEventListener('DOMContentLoaded', function() {
         if (augmentChoices)
             augmentChoices.passedElement.element.addEventListener('change', saveState);
     });
-
-    if (window.setLanguageTags) window.setLanguageTags();
-    if (window.updateLocalizedText) window.updateLocalizedText();
 });

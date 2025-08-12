@@ -11,7 +11,7 @@
 </div>
 
 <script>
-    // Initialization Language
+    //Initialization Language
     let language = localStorage.getItem('language') || 'en';
     let dbTranslations = {};
     let webTranslations = {};
@@ -21,120 +21,157 @@
     const languageButton = document.getElementById('languageButton');
     const languageDropdown = document.getElementById('languageDropdown');
 
-    // Toggle drop-down list display
+    //Change Language Click Event style
     languageButton.addEventListener('click', () => {
         languageDropdown.classList.toggle('show');
     });
 
-    // Click elsewhere on the page to close the drop-down list
+    //Change Language Click Event style
     document.addEventListener('click', (event) => {
         if (!languageButton.contains(event.target) && !languageDropdown.contains(event.target)) {
             languageDropdown.classList.remove('show');
         }
     });
 
-    // Dynamic Settings data-language-Tag-And-Source-EN
+    //Add TAG used to store original English
     function setLanguageTags() {
         document.querySelectorAll('*:not(script):not(style):not(input):not([class^="language-"]):not(.res-val)').forEach(element => {
             let textNode = Array.from(element.childNodes).find(node => node.nodeType === Node.TEXT_NODE);
             if (textNode && textNode.textContent !== '') {
                 const textContent = textNode.textContent;
                 element.setAttribute('data-language-Tag-And-Source-EN', textContent);
-                //console.log(`Set data-language-Tag-And-Source-EN for element: ${textContent}`); // Debug Log
             }
         });
     }
 
-    // Loading language files
-    async function loadLanguageFiles(lang) {
+    //Load Web Localization Dictionary and Update Display Language
+    async function loadWebLanguageFilesAndUpdate(lang) {
         if (lang === 'en') {
-            dbTranslations = {};
             webTranslations = {};
-            updateLocalizedText();
+            updateWebLocalizedText();
             return;
         }
         try {
-            const dbScript = document.createElement('script');
-            dbScript.src = `/static/js/db/${lang}.js`;
+            //Check if Loaded
+            if (window.web_l10n_texts?.[lang]) {
+                webTranslations = window.web_l10n_texts[lang];
+                updateWebLocalizedText();
+                return;
+            }
             const webScript = document.createElement('script');
             webScript.src = `/static/js/web/${lang}.js`;
-            document.head.appendChild(dbScript);
             document.head.appendChild(webScript);
-
             await Promise.all([
-                new Promise(resolve => { dbScript.onload = resolve; dbScript.onerror = () => resolve(); }),
                 new Promise(resolve => { webScript.onload = resolve; webScript.onerror = () => resolve(); })
             ]);
-
-            dbTranslations = window.db_l10n_texts?.[lang] || {};
             webTranslations = window.web_l10n_texts?.[lang] || {};
-            //console.log(`Loaded translations for ${lang}:`, { db: dbTranslations, web: webTranslations }); // Debug Log
-            updateLocalizedText();
-        } catch (error) {
-            console.error(`Failed to load language files for ${lang}:`, error);
-            dbTranslations = {};
+            updateWebLocalizedText();
+        }catch (error) {
+            console.error('loadWebLanguageFiles if Error：', error);
             webTranslations = {};
-            updateLocalizedText();
+            updateWebLocalizedText();
         }
     }
 
-    // Update localized text
-    function updateLocalizedText() {
+    //Update Web Localized Text
+    function updateWebLocalizedText() {
         document.querySelectorAll('[data-language-Tag-And-Source-EN]').forEach(element => {
             const sourceText = element.getAttribute('data-language-Tag-And-Source-EN');
             let textNode = Array.from(element.childNodes).find(node => node.nodeType === Node.TEXT_NODE);
-            
+            let translation = sourceText;
             if (language === 'en') {
-                // Use in English data-language-Tag-And-Source-EN
                 if (textNode) {
                     textNode.textContent = sourceText;
                 } else if (sourceText) {
                     element.appendChild(document.createTextNode(sourceText));
                 }
             } else {
-                // Non-English
-                let translation;
-                if (element.hasAttribute('data-language-Tag')) {
-                    // Item Data: Usage dbTranslations
-                    const tag = element.getAttribute('data-language-Tag');
-                    translation = dbTranslations[tag] || sourceText;
-                    // if (!dbTranslations[tag]) {
-                    //     console.warn(`No db translation found for tag: ${tag} in language: ${language}`);
-                    // }
-                } else {
-                    // Pure web content: Use webTranslations
-                    translation = webTranslations[sourceText] || sourceText;
-                    // if (!webTranslations[sourceText]) {
-                    //     console.warn(`No web translation found for tag: ${sourceText} in language: ${language}`);
-                    // }
-                }
-                
-                if (textNode) {
-                    textNode.textContent = translation;
-                } else if (translation) {
-                    element.appendChild(document.createTextNode(translation));
-                }
+                translation = webTranslations[sourceText] || sourceText;
+            }
+            if (textNode) {
+                textNode.textContent = translation;
+            } else if (translation) {
+                element.appendChild(document.createTextNode(translation));
             }
         });
 
-        // Update button text
+        //Update switch language button text
         languageButton.textContent = language === 'en' ? 'Language' : (webTranslations['Language'] || 'Language');
     }
 
-    // Handling language switching
+    //Load Database Localization Dictionary and Update Display Language
+    async function loadDBLanguageFilesAndUpdate(lang, mode = 'all', el = null) {
+        if (lang === 'en') {
+            dbTranslations = {};
+            updateDBLocalizedText();
+            return;
+        }
+        try {
+            if (window.db_l10n_texts?.[lang]) {
+                dbTranslations = window.db_l10n_texts[lang];
+                updateDBLocalizedText();
+                return;
+            }
+            const dbScript = document.createElement('script');
+            dbScript.src = `/static/js/db/${lang}.js`;
+            document.head.appendChild(dbScript);
+            await Promise.all([
+                new Promise(resolve => { dbScript.onload = resolve; dbScript.onerror = () => resolve(); })
+            ]);
+            dbTranslations = window.db_l10n_texts?.[lang] || {};
+            updateDBLocalizedText();
+        }catch (error) {
+            console.error('loadDBLanguageFiles if Error：', error);
+            dbTranslations = {};
+            updateDBLocalizedText();
+        }
+    }
+
+    function updateDBLocalizedText() {
+        const allItems = document.querySelectorAll(`
+            .choices__list.choices__list--dropdown .choices__list .choices__item,
+            .choices__list.choices__list--multiple > .choices__item,
+            .section.results .results-table a
+        `);
+        allItems.forEach((element) => {
+            const sourceText = element.getAttribute('data-language-Tag-And-Source-EN');
+            const tag = element.getAttribute('data-language-Tag');
+            let textNode = Array.from(element.childNodes).find(node => node.nodeType === Node.TEXT_NODE);
+            let translation = sourceText;
+            if (language === 'en') {
+                if (textNode) {
+                    textNode.textContent = sourceText;
+                } else if (sourceText) {
+                    element.appendChild(document.createTextNode(sourceText));
+                }
+            } else {
+                translation = dbTranslations[tag] || sourceText;
+            }
+            if (textNode) {
+                textNode.textContent = translation;
+            } else if (translation) {
+                element.appendChild(document.createTextNode(translation));
+            }
+        });
+    }
+
+    //Listen for Language Switch Event
     languageDropdown.addEventListener('click', (event) => {
         const lang = event.target.getAttribute('data-lang');
         if (lang) {
             language = lang;
             localStorage.setItem('language', language);
             languageDropdown.classList.remove('show');
-            loadLanguageFiles(language);
+            loadWebLanguageFilesAndUpdate(language);
+            loadDBLanguageFilesAndUpdate(language);
+
         }
     });
 
-    // Initialized when the page loads
+    //Execute Language Work After Page Load
     (async () => {
         setLanguageTags();
-        await loadLanguageFiles(language);
+        await loadWebLanguageFilesAndUpdate(language);
+        await loadDBLanguageFilesAndUpdate(language);
     })();
 </script>
