@@ -35,9 +35,9 @@
 
     //Add TAG used to store original English
     function setLanguageTags() {
-        document.querySelectorAll('*:not(script):not(style):not(input):not([class^="language-"]):not(.res-val)').forEach(element => {
+        document.querySelectorAll('*:not(script):not(style):not(input):not([class^="language-"]):not(.res-val):not([data-language-Tag-And-Source-EN])').forEach(element => {
             let textNode = Array.from(element.childNodes).find(node => node.nodeType === Node.TEXT_NODE);
-            if (textNode && textNode.textContent !== '') {
+            if (textNode && textNode.textContent.trim() !== '') {
                 const textContent = textNode.textContent;
                 element.setAttribute('data-language-Tag-And-Source-EN', textContent);
             }
@@ -168,10 +168,10 @@
         }
     });
 
-    //Execute Language Work After Page Load
-    (async () => {
+    //First update the language, used in index.js after the then()
+    async function firstUpdateLanguage(language) {
         setLanguageTags();
         await loadWebLanguageFilesAndUpdate(language);
         await loadDBLanguageFilesAndUpdate(language);
-    })();
+    }
 </script>

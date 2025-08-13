@@ -429,9 +429,7 @@ document.addEventListener('DOMContentLoaded', function() {
         loadState();
         //After executing the loading state, set the language
         const language = localStorage.getItem('language') || 'en';
-        setLanguageTags();
-        loadWebLanguageFilesAndUpdate(language);
-        loadDBLanguageFilesAndUpdate(language);
+        firstUpdateLanguage(language);
 
         //Listen for selection click events and handle the language display of enchantments and inlays separately
         const selectIds = ['component-blacklist', 'augment-blacklist'];
