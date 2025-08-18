@@ -1,10 +1,10 @@
 // TAB SWITCHER SCRIPT
 document.querySelectorAll('.tab').forEach(tab => {
-    tab.addEventListener('click', function() {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
-    tab.classList.add('active');
-    document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+    tab.addEventListener('click', function () {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
     });
 });
 
@@ -102,7 +102,7 @@ function renderWeaponTemplate(templateArr, selectId, defaultValue) {
     const sel = document.getElementById(selectId);
     sel.innerHTML = '';
     templateArr.forEach(opt => {
-    sel.innerHTML += `<option value="${opt.value}"${opt.value === defaultValue ? ' selected' : ''}>${opt.label}</option>`;
+        sel.innerHTML += `<option value="${opt.value}"${opt.value === defaultValue ? ' selected' : ''}>${opt.label}</option>`;
     });
 }
 
@@ -110,7 +110,7 @@ function renderResistances(list, containerId) {
     const cont = document.getElementById(containerId);
     cont.innerHTML = '';
     list.forEach(r => {
-    cont.innerHTML += `
+        cont.innerHTML += `
         <div class="resistance-input">
         <label>${r.label}:</label>
         <input type="number" name="${r.name}" value="${r.value}" min="0" max="300">
@@ -123,7 +123,7 @@ function renderCheckboxGroup(list, containerId) {
     const cont = document.getElementById(containerId);
     cont.innerHTML = '';
     list.forEach(item => {
-    cont.innerHTML += `
+        cont.innerHTML += `
         <label><input type="checkbox" name="${item.name}">${item.label}</label>
     `;
     });
@@ -133,10 +133,10 @@ function renderFactionDropdowns(factions, options, containerId) {
     const cont = document.getElementById(containerId);
     cont.innerHTML = '';
     factions.forEach(fac => {
-    let optionsHtml = options.map(opt =>
-        `<option value="${opt.value}"${opt.value === 'revered' ? ' selected' : ''}>${opt.label}</option>`
-    ).join('');
-    cont.innerHTML += `
+        let optionsHtml = options.map(opt =>
+            `<option value="${opt.value}"${opt.value === 'revered' ? ' selected' : ''}>${opt.label}</option>`
+        ).join('');
+        cont.innerHTML += `
         <div class="dropdown-item">
         <label>${fac.label}</label>
         <select name="${fac.name}">
@@ -151,7 +151,7 @@ function renderFactionDropdowns(factions, options, containerId) {
 let componentChoices = null;
 let augmentChoices = null;
 
-function initItemChoices(list,selectId) {
+function initItemChoices(list, selectId) {
     if (selectId === 'component-blacklist' && componentChoices) {
         componentChoices.destroy();
         componentChoices = null;
@@ -167,40 +167,38 @@ function initItemChoices(list,selectId) {
         selected: false,
         customProperties: { tag: String(obj.tag) }
     }));
-    
+
     const instance = new Choices('#' + selectId, {
         removeItemButton: true,
         searchEnabled: true,
         choices: choiceItems,
         placeholderValue: 'Type an item name...',
-        allowHTML: true, 
+        allowHTML: true,
         //Customize generated styles and data
-        callbackOnCreateTemplates: function(strToEl, escapeForTemplate, getClassNames) {
+        callbackOnCreateTemplates: function (strToEl, escapeForTemplate, getClassNames) {
             return {
-              //Selected part  
+                //Selected part
                 item: ({ classNames }, data) => {
-                    const choice = choiceItems.find(item => item.id === data.id);
+                    const choice = choiceItems.find((item) => item.id === data.id);
                     const tag = choice?.customProperties?.tag || data.customProperties?.tag || '';
                     const label = data.label || '';
                     const value = data.value || '';
                     return strToEl(`
-                    <div
-                        id="choices--${selectId}-choice-${data.id}"
-                        class="${getClassNames(classNames.item).join(' ')} ${
-                        getClassNames(data.highlighted ? classNames.highlightedState : classNames.itemSelectable).join(' ')
-                        } ${data.placeholder ? classNames.placeholder : ''}"
-                        data-item
-                        data-id="${data.id}"
-                        data-value="${value}"
-                        ${data.active ? 'aria-selected="true"' : ''}
-                        ${data.disabled ? 'aria-disabled="true"' : ''}
-                        data-language-tag="${tag}"
-                        data-language-Tag-And-Source-EN="${label}"
-                    >
-                        ${label}
-                        <button type="button" class="${getClassNames(classNames.button).join(' ')}" data-button>x</button>
-                    </div>
-                    `);
+                  <div
+                    id="choices--${selectId}-choice-${data.id}"
+                    class="${getClassNames(classNames.item).join(' ')} ${getClassNames(data.highlighted ? classNames.highlightedState : classNames.itemSelectable).join(' ')} ${data.placeholder ? classNames.placeholder : ''}"
+                    data-item
+                    data-id="${data.id}"
+                    data-value="${value}"
+                    ${data.active ? 'aria-selected="true"' : ''}
+                    ${data.disabled ? 'aria-disabled="true"' : ''}
+                    data-language-tag="${tag}"
+                    data-language-Tag-And-Source-EN="${label}"
+                  >
+                    ${label}
+                    <button type="button" class="${getClassNames(classNames.button).join(' ')}" data-button>x</button>
+                  </div>
+                `);
                 },
                 //To be selected
                 choice: ({ classNames }, data) => {
@@ -208,26 +206,25 @@ function initItemChoices(list,selectId) {
                     const label = data.label || '';
                     const value = data.value || '';
                     return strToEl(`
-                    <div
-                        id="choices--${selectId}-item-${data.id}"
-                        class="${getClassNames(classNames.item).join(' ')} ${getClassNames(classNames.itemChoice).join(' ')} ${
-                        getClassNames(data.disabled ? classNames.itemDisabled : classNames.itemSelectable).join(' ')
-                        }"
-                        data-select-text="${this.config.itemSelectText}"
-                        data-choice
-                        data-id="${data.id}"
-                        data-value="${value}"
-                        ${data.disabled ? 'data-choice-disabled aria-disabled="true"' : 'data-choice-selectable'}
-                        data-language-tag="${tag}"
-                        data-language-Tag-And-Source-EN="${label}"
-                        ${data.groupId > 0 ? 'role="treeitem"' : 'role="option"'}
-                    >
-                        ${label}
-                    </div>
-                    `);
-                }
-                };
-            }
+                  <div
+                    id="choices--${selectId}-item-${data.id}"
+                    class="${getClassNames(classNames.item).join(' ')} ${getClassNames(classNames.itemChoice).join(' ')} ${getClassNames(data.disabled ? classNames.itemDisabled : classNames.itemSelectable).join(' ')}"
+                    data-select-text="${this.config.itemSelectText}"
+                    data-choice
+                    data-id="${data.id}"
+                    data-value="${value}"
+                    ${data.disabled ? 'data-choice-disabled aria-disabled="true"' : 'data-choice-selectable'}
+                    data-language-tag="${tag}"
+                    data-language-Tag-And-Source-EN="${label}"
+                    ${data.groupId > 0 ? 'role="treeitem"' : 'role="option"'}
+                  >
+                    ${label}
+                  </div>
+                `);
+                },
+            };
+        }
+
     });
 
     if (selectId === 'component-blacklist') {
@@ -241,22 +238,22 @@ function initItemChoices(list,selectId) {
 function loadNamesFromCSV(url, selectId) {
     return fetch(url)
         .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.text();
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.text();
         })
         .then(csvText => {
-        const results = Papa.parse(csvText, { header: true, skipEmptyLines: true });
-        const items = results.data
+            const results = Papa.parse(csvText, { header: true, skipEmptyLines: true });
+            const items = results.data
                 .map(row => ({ item: row.Item, tag: row['Item Tag'] }))
                 .filter(obj => !!obj.item);
-        initItemChoices(items,selectId);
+            initItemChoices(items, selectId);
         })
         .catch(error => {
-        console.error('Failed to load or parse CSV:', error);
-        // Still resolve so Promise.all won't block
-        return Promise.resolve();
+            console.error('Failed to load or parse CSV:', error);
+            // Still resolve so Promise.all won't block
+            return Promise.resolve();
         });
 }
 
@@ -314,13 +311,13 @@ const scrollPositions = {};
 
 // Save scroll position for active tab before form submit
 const savePageState = () => {
-const activeTab = document.querySelector('.tab.active');
-if (activeTab) {
-    const tabName = activeTab.dataset.tab;
-    scrollPositions[tabName] = window.scrollY;
-    localStorage.setItem('scrollPositions', JSON.stringify(scrollPositions));
-    localStorage.setItem('activeTab', tabName);
-}
+    const activeTab = document.querySelector('.tab.active');
+    if (activeTab) {
+        const tabName = activeTab.dataset.tab;
+        scrollPositions[tabName] = window.scrollY;
+        localStorage.setItem('scrollPositions', JSON.stringify(scrollPositions));
+        localStorage.setItem('activeTab', tabName);
+    }
 };
 
 document.querySelector('form').addEventListener('submit', savePageState);
@@ -339,20 +336,20 @@ window.addEventListener('load', () => {
             contentToActivate.classList.add('active');
         }
 
-    // Restore scroll for the active tab if saved
-    if (savedScrollPositions[activeTab] !== undefined) {
-        window.scrollTo(0, savedScrollPositions[activeTab]);
+        // Restore scroll for the active tab if saved
+        if (savedScrollPositions[activeTab] !== undefined) {
+            window.scrollTo(0, savedScrollPositions[activeTab]);
         }
     }
 
-  // Clean up stored values
+    // Clean up stored values
     localStorage.removeItem('activeTab');
     localStorage.removeItem('scrollPositions');
 });
 
 // Save scroll position on tab change
 document.querySelectorAll('.tab').forEach(tab => {
-    tab.addEventListener('click', function() {
+    tab.addEventListener('click', function () {
         // Save scroll of currently active tab before switching
         const currentActiveTab = document.querySelector('.tab.active');
         if (currentActiveTab) {
@@ -365,7 +362,7 @@ document.querySelectorAll('.tab').forEach(tab => {
 });
 
 // INITIALIZATION
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     renderWeaponTemplate(weaponTemplates, 'template', 'one-hand-shield');
     renderResistances(resistances, 'resistances-section');
     renderResistances(targetResistances, 'target-resistances-section');
@@ -381,9 +378,7 @@ document.addEventListener('DOMContentLoaded', function() {
         loadState();
         //After executing the loading state, set the language
         const language = localStorage.getItem('language') || 'en';
-        setLanguageTags();
-        loadWebLanguageFilesAndUpdate(language);
-        loadDBLanguageFilesAndUpdate(language);
+        firstUpdateLanguage(language);
 
         //Listen for selection click events and handle the language display of enchantments and inlays separately
         const selectIds = ['component-blacklist', 'augment-blacklist'];
