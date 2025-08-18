@@ -178,56 +178,57 @@ function initItemChoices(list,selectId) {
         callbackOnCreateTemplates: function(strToEl, escapeForTemplate, getClassNames) {
             return {
               //Selected part  
-                item: ({ classNames }, data) => {
-                    const choice = choiceItems.find(item => item.id === data.id);
-                    const tag = choice?.customProperties?.tag || data.customProperties?.tag || '';
-                    const label = data.label || '';
-                    const value = data.value || '';
-                    return strToEl(`
-                    <div
-                        id="choices--${selectId}-choice-${data.id}"
-                        class="${getClassNames(classNames.item).join(' ')} ${
-                        getClassNames(data.highlighted ? classNames.highlightedState : classNames.itemSelectable).join(' ')
-                        } ${data.placeholder ? classNames.placeholder : ''}"
-                        data-item
-                        data-id="${data.id}"
-                        data-value="${value}"
-                        ${data.active ? 'aria-selected="true"' : ''}
-                        ${data.disabled ? 'aria-disabled="true"' : ''}
-                        data-language-tag="${tag}"
-                        data-language-Tag-And-Source-EN="${label}"
-                    >
-                        ${label}
-                        <button type="button" class="${getClassNames(classNames.button).join(' ')}" data-button>x</button>
-                    </div>
-                    `);
-                },
-                //To be selected
-                choice: ({ classNames }, data) => {
-                    const tag = data.customProperties?.tag || '';
-                    const label = data.label || '';
-                    const value = data.value || '';
-                    return strToEl(`
-                    <div
-                        id="choices--${selectId}-item-${data.id}"
-                        class="${getClassNames(classNames.item).join(' ')} ${getClassNames(classNames.itemChoice).join(' ')} ${
-                        getClassNames(data.disabled ? classNames.itemDisabled : classNames.itemSelectable).join(' ')
-                        }"
-                        data-select-text="${this.config.itemSelectText}"
-                        data-choice
-                        data-id="${data.id}"
-                        data-value="${value}"
-                        ${data.disabled ? 'data-choice-disabled aria-disabled="true"' : 'data-choice-selectable'}
-                        data-language-tag="${tag}"
-                        data-language-Tag-And-Source-EN="${label}"
-                        ${data.groupId > 0 ? 'role="treeitem"' : 'role="option"'}
-                    >
-                        ${label}
-                    </div>
-                    `);
-                }
-                };
-            }
+              item: ({ classNames }, data) => {
+                const choice = choiceItems.find(item => item.id === data.id);
+                const tag = choice?.customProperties?.tag || data.customProperties?.tag || '';
+                const label = data.label || '';
+                const value = data.value || '';
+                return strToEl(`
+                  <div
+                    id="choices--${selectId}-choice-${data.id}"
+                    class="${getClassNames(classNames.item).join(' ')} ${
+                      getClassNames(data.highlighted ? classNames.highlightedState : classNames.itemSelectable).join(' ')
+                    } ${data.placeholder ? classNames.placeholder : ''}"
+                    data-item
+                    data-id="${data.id}"
+                    data-value="${value}"
+                    ${data.active ? 'aria-selected="true"' : ''}
+                    ${data.disabled ? 'aria-disabled="true"' : ''}
+                    data-language-tag="${tag}"
+                    data-language-Tag-And-Source-EN="${label}"
+                  >
+                    ${label}
+                    <button type="button" class="${getClassNames(classNames.button).join(' ')}" data-button>x</button>
+                  </div>
+                `);
+              },
+              //To be selected
+              choice: ({ classNames }, data) => {
+                const tag = data.customProperties?.tag || '';
+                const label = data.label || '';
+                const value = data.value || '';
+                return strToEl(`
+                  <div
+                    id="choices--${selectId}-item-${data.id}"
+                    class="${getClassNames(classNames.item).join(' ')} ${getClassNames(classNames.itemChoice).join(' ')} ${
+                      getClassNames(data.disabled ? classNames.itemDisabled : classNames.itemSelectable).join(' ')
+                    }"
+                    data-select-text="${this.config.itemSelectText}"
+                    data-choice
+                    data-id="${data.id}"
+                    data-value="${value}"
+                    ${data.disabled ? 'data-choice-disabled aria-disabled="true"' : 'data-choice-selectable'}
+                    data-language-tag="${tag}"
+                    data-language-Tag-And-Source-EN="${label}"
+                    ${data.groupId > 0 ? 'role="treeitem"' : 'role="option"'}
+                  >
+                    ${label}
+                  </div>
+                `);
+              }
+            };
+          }
+
     });
 
     if (selectId === 'component-blacklist') {
@@ -263,43 +264,90 @@ function loadNamesFromCSV(url, selectId) {
 // Save state to localStorage
 function saveState() {
     const formData = {};
+
+    // Save weapon template
     formData['template'] = document.getElementById('template').value;
+
+    // Character level
     formData['char-level'] = document.getElementById('char-level').value;
+
+    // Current armor absorption value
     formData['armor-abs-value'] = document.getElementById('armor-abs-value').value;
 
-    [...document.querySelectorAll('#resistances-section input[type="number"], #target-resistances-section input[type="number"]')]
-        .forEach(input => formData[input.name] = input.value);
+    // Resistances inputs
+    [...document.querySelectorAll('#resistances-section input[type="number"]')].forEach(input => {
+    formData[input.name] = input.value;
+    });
+    [...document.querySelectorAll('#target-resistances-section input[type="number"]')].forEach(input => {
+    formData[input.name] = input.value;
+    });
 
-    [...document.querySelectorAll('#component-slots-section input[type="checkbox"], #augment-slots-section input[type="checkbox"]')]
-        .forEach(input => formData[input.name] = input.checked);
+    // Component & augment checkboxes
+    [...document.querySelectorAll('#component-slots-section input[type="checkbox"]')].forEach(input => {
+    formData[input.name] = input.checked;
+    });
+    [...document.querySelectorAll('#augment-slots-section input[type="checkbox"]')].forEach(input => {
+    formData[input.name] = input.checked;
+    });
 
-    [...document.querySelectorAll('#faction-dropdowns-section select')]
-        .forEach(select => formData[select.name] = select.value);
+    // Faction dropdowns
+    [...document.querySelectorAll('#faction-dropdowns-section select')].forEach(select => {
+    formData[select.name] = select.value;
+    });
 
+    // Save multi-selects via Choices instances
     formData['component_blacklist'] = componentChoices ? componentChoices.getValue(true) : [];
     formData['augment_blacklist'] = augmentChoices ? augmentChoices.getValue(true) : [];
 
     localStorage.setItem('grimDawnOptimizerForm', JSON.stringify(formData));
+    // console.log('State saved to localStorage:', formData);
 }
 
+// Load state from localStorage, if available
 function loadState() {
     const saved = localStorage.getItem('grimDawnOptimizerForm');
     if (!saved) return;
     const formData = JSON.parse(saved);
 
-    if (formData['template']) document.getElementById('template').value = formData['template'];
-    if (formData['char-level']) document.getElementById('char-level').value = formData['char-level'];
-    if (formData['armor-abs-value']) document.getElementById('armor-abs-value').value = formData['armor-abs-value'];
+    // Restore weapon template
+    if (formData['template'] !== undefined) {
+    document.getElementById('template').value = formData['template'];
+    }
 
-    [...document.querySelectorAll('#resistances-section input[type="number"], #target-resistances-section input[type="number"]')]
-        .forEach(input => { if (formData[input.name] !== undefined) input.value = formData[input.name]; });
+    // Restore character level
+    if (formData['char-level'] !== undefined) {
+    document.getElementById('char-level').value = formData['char-level'];
+    }
 
-    [...document.querySelectorAll('#component-slots-section input[type="checkbox"], #augment-slots-section input[type="checkbox"]')]
-        .forEach(input => { if (formData[input.name] !== undefined) input.checked = formData[input.name]; });
+    // Restore current armor abs value
+    if (formData['armor-abs-value'] !== undefined) {
+    document.getElementById('armor-abs-value').value = formData['armor-abs-value'];
+    }
 
-    [...document.querySelectorAll('#faction-dropdowns-section select')]
-        .forEach(select => { if (formData[select.name] !== undefined) select.value = formData[select.name]; });
+    // Restore resistances
+    [...document.querySelectorAll('#resistances-section input[type="number"]')].forEach(input => {
+    if (formData[input.name] !== undefined) input.value = formData[input.name];
+    });
+    [...document.querySelectorAll('#target-resistances-section input[type="number"]')].forEach(input => {
+    if (formData[input.name] !== undefined) input.value = formData[input.name];
+    });
 
+    // Restore component slots checkboxes
+    [...document.querySelectorAll('#component-slots-section input[type="checkbox"]')].forEach(input => {
+    if (formData[input.name] !== undefined) input.checked = formData[input.name];
+    });
+
+    // Restore augment slots checkboxes
+    [...document.querySelectorAll('#augment-slots-section input[type="checkbox"]')].forEach(input => {
+    if (formData[input.name] !== undefined) input.checked = formData[input.name];
+    });
+
+    // Restore faction dropdowns
+    [...document.querySelectorAll('#faction-dropdowns-section select')].forEach(select => {
+    if (formData[select.name] !== undefined) select.value = formData[select.name];
+    });
+
+    // Restore blacklist multi-selects AFTER they are initialized
     if (componentChoices && Array.isArray(formData['component_blacklist'])) {
         componentChoices.setChoiceByValue(formData['component_blacklist']);
     }
@@ -381,9 +429,7 @@ document.addEventListener('DOMContentLoaded', function() {
         loadState();
         //After executing the loading state, set the language
         const language = localStorage.getItem('language') || 'en';
-        setLanguageTags();
-        loadWebLanguageFilesAndUpdate(language);
-        loadDBLanguageFilesAndUpdate(language);
+        firstUpdateLanguage(language);
 
         //Listen for selection click events and handle the language display of enchantments and inlays separately
         const selectIds = ['component-blacklist', 'augment-blacklist'];
