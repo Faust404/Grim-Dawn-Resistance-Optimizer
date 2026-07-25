@@ -63,6 +63,7 @@ web_l10n_texts['zh'] = {
     "Cult of Bysmiel":"拜斯迈教派",
     "Cult of Dreeg":"德里格教派",
     "Cult of Solael":"索拉尔教派",
+    "Kurn":"库恩",
     "Friendly":"友善",
     "Respected":"尊敬",
     "Honored":"敬重",

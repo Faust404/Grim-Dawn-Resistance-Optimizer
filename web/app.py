@@ -112,6 +112,7 @@ def index():
             "Cult of Bysmiel": request.form.get("standing-bysmiel", "Revered"),
             "Cult of Dreeg": request.form.get("standing-dreeg", "Revered"),
             "Cult of Solael": request.form.get("standing-solael", "Revered"),
+            "Kurn": request.form.get("standing-kurn", "Revered"),
         }
 
         component_blacklist = request.form.getlist('component_blacklist[]')

@@ -88,7 +88,8 @@ const factions = [
     { label: "Malmouth", name: "standing-malmouth" },
     { label: "Cult of Bysmiel", name: "standing-bysmiel" },
     { label: "Cult of Dreeg", name: "standing-dreeg" },
-    { label: "Cult of Solael", name: "standing-solael" }
+    { label: "Cult of Solael", name: "standing-solael" },
+    { label: "Kurn", name: "standing-kurn" }
 ];
 const factionOptions = [
     { value: "friendly",  label: "Friendly" },
