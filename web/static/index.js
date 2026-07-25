@@ -113,7 +113,7 @@ function renderResistances(list, containerId) {
         cont.innerHTML += `
         <div class="resistance-input">
         <label>${r.label}:</label>
-        <input type="number" name="${r.name}" value="${r.value}" min="0" max="300">
+        <input type="number" name="${r.name}" value="${r.value}" min="-200" max="200">
         </div>
     `;
     });
