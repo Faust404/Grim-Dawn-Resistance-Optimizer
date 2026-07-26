@@ -413,8 +413,8 @@ class ResistanceOptimizer:
         prob += armor_absorption_percentage_gained + armor_shortfall >= self.required_armor_abs_percentage
 
         # Penalize shortfalls heavily in the objective function to prioritize meeting resistance and armor absorption targets
-        res_penalty = 1e3
-        armor_penalty = 1e4
+        res_penalty = 1e4
+        armor_penalty = 1e3
         item_penalty = 1
 
         prob += (
