@@ -32,8 +32,10 @@ web_l10n_texts['zh'] = {
     "Chaos:":"混乱：",
     
     // 装备选择部分，BUG:文本前有空格，如果去掉空格，则可与【结果部分-装备】合并
-    "⚙️ Unavailable Component Slots":"⚙️ 不需要镶嵌物的部位",
-    "⚙️ Unavailable Augment Slots":"⚙️ 不需要附魔物的部位",
+    // "⚙️ Unavailable Component Slots":"⚙️ 不需要镶嵌物的部位",
+    // "⚙️ Unavailable Augment Slots":"⚙️ 不需要附魔物的部位",
+    "⚙️ Unavailable Component Slots (BLOCK SLOTS THAT YOU ARE ALREADY USING)":"⚙️ 不需要镶嵌物的部位 (锁定您当前正在使用的插槽)",
+    "⚙️ Unavailable Augment Slots (BLOCK SLOTS THAT YOU ARE ALREADY USING)":"⚙️ 不需要附魔物的部位 (锁定您当前正在使用的插槽)",
     "Helm":"头部",
     "Chest":"胸部",
     "Shoulders":"肩部",
