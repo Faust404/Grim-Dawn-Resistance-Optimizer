@@ -30,16 +30,17 @@ def index():
         weapon_template = request.form.get("template")
         char_level = int(request.form.get("char-level", 100))
         current_armor_abs_percentage = int(request.form.get("armor-abs-value", 70))
+
         input_resistances = {
-            "Fire Resistance": int(request.form.get("current-fire", 40)),
-            "Cold Resistance": int(request.form.get("current-cold", 40)),
-            "Lightning Resistance": int(request.form.get("current-lightning", 40)),
-            "Poison & Acid Resistance": int(request.form.get("current-poison", 40)),
-            "Pierce Resistance": int(request.form.get("current-pierce", 40)),
-            "Bleeding Resistance": int(request.form.get("current-bleeding", 40)),
-            "Vitality Resistance": int(request.form.get("current-vitality", 40)),
-            "Aether Resistance": int(request.form.get("current-aether", 40)),
-            "Chaos Resistance": int(request.form.get("current-chaos", 40)),
+            "Fire Resistance": int(request.form.get("current-fire") or 0),
+            "Cold Resistance": int(request.form.get("current-cold") or 0),
+            "Lightning Resistance": int(request.form.get("current-lightning") or 0),
+            "Poison & Acid Resistance": int(request.form.get("current-poison") or 0),
+            "Pierce Resistance": int(request.form.get("current-pierce") or 0),
+            "Bleeding Resistance": int(request.form.get("current-bleeding") or 0),
+            "Vitality Resistance": int(request.form.get("current-vitality") or 0),
+            "Aether Resistance": int(request.form.get("current-aether") or 0),
+            "Chaos Resistance": int(request.form.get("current-chaos") or 0),
         }
 
         target_resistances = {

@@ -266,7 +266,7 @@ function saveState() {
     formData['armor-abs-value'] = document.getElementById('armor-abs-value').value;
 
     [...document.querySelectorAll('#resistances-section input[type="number"], #target-resistances-section input[type="number"]')]
-        .forEach(input => formData[input.name] = input.value);
+        .forEach(input => formData[input.name] = input.value === '' ? 0 : input.value);
 
     [...document.querySelectorAll('#component-slots-section input[type="checkbox"], #augment-slots-section input[type="checkbox"]')]
         .forEach(input => formData[input.name] = input.checked);
@@ -290,7 +290,11 @@ function loadState() {
     if (formData['armor-abs-value']) document.getElementById('armor-abs-value').value = formData['armor-abs-value'];
 
     [...document.querySelectorAll('#resistances-section input[type="number"], #target-resistances-section input[type="number"]')]
-        .forEach(input => { if (formData[input.name] !== undefined) input.value = formData[input.name]; });
+    .forEach(input => {
+        if (formData[input.name] !== undefined) {
+            input.value = formData[input.name] === '' ? 0 : formData[input.name];
+        }
+    });
 
     [...document.querySelectorAll('#component-slots-section input[type="checkbox"], #augment-slots-section input[type="checkbox"]')]
         .forEach(input => { if (formData[input.name] !== undefined) input.checked = formData[input.name]; });
