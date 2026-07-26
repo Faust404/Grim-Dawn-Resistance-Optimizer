@@ -424,7 +424,7 @@ class ResistanceOptimizer:
         )
 
         # Initialize the solver and solve the problem
-        prob.solve(pulp.PULP_CBC_CMD(msg=0))
+        prob.solve(pulp.HiGHS(msg=0))
 
         status = pulp.LpStatus[prob.status]
         if status != "Optimal":
