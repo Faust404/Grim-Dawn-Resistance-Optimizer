@@ -279,7 +279,8 @@ input[type="checkbox"]:focus-visible {
     text-shadow: 0 1px 6px #181c2560;
 }
 
-.factions-header-row {
+.factions-header-row,
+.resistances-header-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -288,7 +289,8 @@ input[type="checkbox"]:focus-visible {
     margin-bottom: 1rem;
 }
 
-.faction-master-group {
+.faction-master-group,
+.target-master-group {
     min-width: 240px;
     max-width: 100%;
     display: inline-flex;
@@ -296,7 +298,8 @@ input[type="checkbox"]:focus-visible {
     gap: 0.75rem;
 }
 
-.faction-master-group label {
+.faction-master-group label,
+.target-master-group label {
     margin-bottom: 0;
     display: inline-flex;
     align-items: center;
@@ -306,7 +309,10 @@ input[type="checkbox"]:focus-visible {
     white-space: nowrap;
 }
 
-.faction-master-group select {
+.faction-master-group select,
+.faction-master-group input,
+.target-master-group select,
+.target-master-group input {
     width: auto;
     min-width: 180px;
     padding: 10px 12px;

@@ -16,6 +16,7 @@ web_l10n_texts['zh'] = {
 
     "⚙️ Player Target Resistances":"⚙️ 角色目标抗性",
     "Target Resistances:":"目标抗性",
+    "Set all target resistances:":"设定所有目标电阻值:",
     "⚙️ Configuration":"⚙️ 设置",
     "Character Level:":"角色等级：",
     "Armor Absorption %:":"护甲吸收 %：",

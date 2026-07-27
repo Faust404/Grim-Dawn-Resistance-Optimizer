@@ -480,6 +480,20 @@ document.addEventListener('DOMContentLoaded', function () {
             select.addEventListener('change', saveState);
         });
 
+        // Add event listener for the target master input to update all target resistances
+        const targetMasterSelect = document.getElementById('target-master-select');
+        if (targetMasterSelect) {
+            targetMasterSelect.addEventListener('input', (event) => {
+                const value = event.target.value;
+                if (value === '') return;
+                document.querySelectorAll('#target-resistances-section input[type="number"]').forEach(input => {
+                    input.value = value;
+                    input.dispatchEvent(new Event('input', { bubbles: true }));
+                });
+                saveState();
+            });
+        }
+
         // Add event listener for the master faction select to update all faction dropdowns
         const factionMasterSelect = document.getElementById('faction-master-select');
         if (factionMasterSelect) {
