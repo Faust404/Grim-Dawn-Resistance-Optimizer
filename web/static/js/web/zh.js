@@ -1,5 +1,6 @@
 web_l10n_texts['zh'] = {
     "Language":"简体中文",
+    "Reset All":"全部重置",
     "⚡ Grim Dawn Resistance Optimizer":"⚡ Grim Dawn 抗性优化工具",
     "Optimize your Resistances With Every Available Component and Augment in the Game": "利用游戏中的每个可用【镶嵌物】和【附魔物】来优化你的抵抗力",
     "Basic Config":"基础设置",
