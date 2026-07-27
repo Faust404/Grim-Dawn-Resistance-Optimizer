@@ -11,72 +11,73 @@ document.querySelectorAll('.tab').forEach(tab => {
 // DYNAMIC FORM GENERATION SCRIPT
 // -- DATA ARRAYS --
 const weaponTemplates = [
-    { label: "One-Handed Melee-Caster Weapon + Shield",     value: "one-hand-shield" },
-    { label: "One-Handed Melee-Caster Weapon + Off-Hand",   value: "one-hand-offhand" },
+    { label: "One-Handed Melee-Caster Weapon + Shield", value: "one-hand-shield" },
+    { label: "One-Handed Melee-Caster Weapon + Off-Hand", value: "one-hand-offhand" },
     { label: "One-Handed Melee-Caster Weapon + One-Handed Melee-Caster Weapon", value: "one-hand-one-hand" },
-    { label: "One-Handed Ranged Weapon + Off-Hand",       value: "ranged-offhand" },
-    { label: "One-Handed Ranged Weapon + One-Handed Ranged Weapon",  value: "ranged-ranged" },
-    { label: "Two-Handed Melee Weapon",              value: "two-hand-melee" },
-    { label: "Two-Handed Ranged Weapon",              value: "two-hand-ranged" }
+    { label: "One-Handed Ranged Weapon + Off-Hand", value: "ranged-offhand" },
+    { label: "One-Handed Ranged Weapon + One-Handed Ranged Weapon", value: "ranged-ranged" },
+    { label: "Two-Handed Melee Weapon", value: "two-hand-melee" },
+    { label: "Two-Handed Ranged Weapon", value: "two-hand-ranged" }
 ];
 
 const resistances = [
-    { label: "Fire",          name: "current-fire",      value: 40 },
-    { label: "Cold",          name: "current-cold",      value: 40 },
-    { label: "Lightning",     name: "current-lightning", value: 40 },
-    { label: "Poison & Acid", name: "current-poison",    value: 40 },
-    { label: "Pierce",        name: "current-pierce",    value: 40 },
-    { label: "Bleeding",      name: "current-bleeding",  value: 40 },
-    { label: "Vitality",      name: "current-vitality",  value: 40 },
-    { label: "Aether",        name: "current-aether",    value: 40 },
-    { label: "Chaos",         name: "current-chaos",     value: 40 }
+    { label: "Fire", name: "current-fire", value: 40 },
+    { label: "Cold", name: "current-cold", value: 40 },
+    { label: "Lightning", name: "current-lightning", value: 40 },
+    { label: "Poison & Acid", name: "current-poison", value: 40 },
+    { label: "Pierce", name: "current-pierce", value: 40 },
+    { label: "Bleeding", name: "current-bleeding", value: 40 },
+    { label: "Vitality", name: "current-vitality", value: 40 },
+    { label: "Aether", name: "current-aether", value: 40 },
+    { label: "Chaos", name: "current-chaos", value: 40 }
 ];
 
 const targetResistances = [
-    { label: "Fire",          name: "target-fire",      value: 80 },
-    { label: "Cold",          name: "target-cold",      value: 80 },
-    { label: "Lightning",     name: "target-lightning", value: 80 },
-    { label: "Poison & Acid", name: "target-poison",    value: 80 },
-    { label: "Pierce",        name: "target-pierce",    value: 80 },
-    { label: "Bleeding",      name: "target-bleeding",  value: 80 },
-    { label: "Vitality",      name: "target-vitality",  value: 80 },
-    { label: "Aether",        name: "target-aether",    value: 80 },
-    { label: "Chaos",         name: "target-chaos",     value: 80 }
+    { label: "Fire", name: "target-fire", value: 80 },
+    { label: "Cold", name: "target-cold", value: 80 },
+    { label: "Lightning", name: "target-lightning", value: 80 },
+    { label: "Poison & Acid", name: "target-poison", value: 80 },
+    { label: "Pierce", name: "target-pierce", value: 80 },
+    { label: "Bleeding", name: "target-bleeding", value: 80 },
+    { label: "Vitality", name: "target-vitality", value: 80 },
+    { label: "Aether", name: "target-aether", value: 80 },
+    { label: "Chaos", name: "target-chaos", value: 80 }
 ];
 
 const componentSlots = [
-    { label: "Helm",      name: "component-head" },
-    { label: "Chest",     name: "component-chest" },
+    { label: "Helm", name: "component-head" },
+    { label: "Chest", name: "component-chest" },
     { label: "Shoulders", name: "component-shoulder" },
-    { label: "Gloves",    name: "component-hand" },
-    { label: "Boots",     name: "component-foot" },
-    { label: "Pants",     name: "component-legs" },
-    { label: "Belt",      name: "component-belt" },
-    { label: "Amulet",    name: "component-amulet" },
-    { label: "Ring 1",    name: "component-ring1" },
-    { label: "Ring 2",    name: "component-ring2" },
-    { label: "Medal",     name: "component-medal" },
-    { label: "Weapon",    name: "component-weapon" },
+    { label: "Gloves", name: "component-hand" },
+    { label: "Boots", name: "component-foot" },
+    { label: "Pants", name: "component-legs" },
+    { label: "Belt", name: "component-belt" },
+    { label: "Amulet", name: "component-amulet" },
+    { label: "Ring 1", name: "component-ring1" },
+    { label: "Ring 2", name: "component-ring2" },
+    { label: "Medal", name: "component-medal" },
+    { label: "Weapon", name: "component-weapon" },
     { label: "Weapon2/Off-Hand/Shield", name: "component-offhand-shield" }
 ];
+
 const augmentSlots = [
-    { label: "Helm",      name: "augment-head" },
-    { label: "Chest",     name: "augment-chest" },
+    { label: "Helm", name: "augment-head" },
+    { label: "Chest", name: "augment-chest" },
     { label: "Shoulders", name: "augment-shoulder" },
-    { label: "Gloves",    name: "augment-hand" },
-    { label: "Boots",     name: "augment-foot" },
-    { label: "Pants",     name: "augment-legs" },
-    { label: "Belt",      name: "augment-belt" },
-    { label: "Amulet",    name: "augment-amulet" },
-    { label: "Ring 1",    name: "augment-ring1" },
-    { label: "Ring 2",    name: "augment-ring2" },
-    { label: "Medal",     name: "augment-medal" },
-    { label: "Weapon",    name: "augment-weapon" },
+    { label: "Gloves", name: "augment-hand" },
+    { label: "Boots", name: "augment-foot" },
+    { label: "Pants", name: "augment-legs" },
+    { label: "Belt", name: "augment-belt" },
+    { label: "Amulet", name: "augment-amulet" },
+    { label: "Ring 1", name: "augment-ring1" },
+    { label: "Ring 2", name: "augment-ring2" },
+    { label: "Medal", name: "augment-medal" },
+    { label: "Weapon", name: "augment-weapon" },
     { label: "Weapon2/Off-Hand/Shield", name: "augment-offhand-shield" }
 ];
 
 const factions = [
-    { label: "Devil's Crossing", name: "standing-crossing",  },
+    { label: "Devil's Crossing", name: "standing-crossing" },
     { label: "Rovers", name: "standing-rovers" },
     { label: "Homestead", name: "standing-homestead" },
     { label: "Kymon's Chosen", name: "standing-kymon" },
@@ -91,11 +92,12 @@ const factions = [
     { label: "Cult of Solael", name: "standing-solael" },
     { label: "Kurn", name: "standing-kurn" }
 ];
+
 const factionOptions = [
-    { value: "friendly",  label: "Friendly" },
+    { value: "friendly", label: "Friendly" },
     { value: "respected", label: "Respected" },
-    { value: "honored",   label: "Honored" },
-    { value: "revered",   label: "Revered" }
+    { value: "honored", label: "Honored" },
+    { value: "revered", label: "Revered" }
 ];
 
 // -- RENDER FUNCTIONS --
@@ -166,7 +168,7 @@ function initItemChoices(list, selectId) {
         value: String(obj.item),
         label: String(obj.item),
         selected: false,
-        customProperties: { tag: String(obj.tag) }
+        customProperties: { tag: String(obj.tag || '') }
     }));
 
     const instance = new Choices('#' + selectId, {
@@ -185,7 +187,7 @@ function initItemChoices(list, selectId) {
                     const label = data.label || '';
                     const value = data.value || '';
                     return strToEl(`
-                  <div
+                <div
                     id="choices--${selectId}-choice-${data.id}"
                     class="${getClassNames(classNames.item).join(' ')} ${getClassNames(data.highlighted ? classNames.highlightedState : classNames.itemSelectable).join(' ')} ${data.placeholder ? classNames.placeholder : ''}"
                     data-item
@@ -195,10 +197,10 @@ function initItemChoices(list, selectId) {
                     ${data.disabled ? 'aria-disabled="true"' : ''}
                     data-language-tag="${tag}"
                     data-language-Tag-And-Source-EN="${label}"
-                  >
+                >
                     ${label}
                     <button type="button" class="${getClassNames(classNames.button).join(' ')}" data-button>x</button>
-                  </div>
+                </div>
                 `);
                 },
                 //To be selected
@@ -207,7 +209,7 @@ function initItemChoices(list, selectId) {
                     const label = data.label || '';
                     const value = data.value || '';
                     return strToEl(`
-                  <div
+                <div
                     id="choices--${selectId}-item-${data.id}"
                     class="${getClassNames(classNames.item).join(' ')} ${getClassNames(classNames.itemChoice).join(' ')} ${getClassNames(data.disabled ? classNames.itemDisabled : classNames.itemSelectable).join(' ')}"
                     data-select-text="${this.config.itemSelectText}"
@@ -218,14 +220,13 @@ function initItemChoices(list, selectId) {
                     data-language-tag="${tag}"
                     data-language-Tag-And-Source-EN="${label}"
                     ${data.groupId > 0 ? 'role="treeitem"' : 'role="option"'}
-                  >
+                >
                     ${label}
-                  </div>
+                </div>
                 `);
                 },
             };
         }
-
     });
 
     if (selectId === 'component-blacklist') {
@@ -290,11 +291,11 @@ function loadState() {
     if (formData['armor-abs-value']) document.getElementById('armor-abs-value').value = formData['armor-abs-value'];
 
     [...document.querySelectorAll('#resistances-section input[type="number"], #target-resistances-section input[type="number"]')]
-    .forEach(input => {
-        if (formData[input.name] !== undefined) {
-            input.value = formData[input.name] === '' ? 0 : formData[input.name];
-        }
-    });
+        .forEach(input => {
+            if (formData[input.name] !== undefined) {
+                input.value = formData[input.name] === '' ? 0 : formData[input.name];
+            }
+        });
 
     [...document.querySelectorAll('#component-slots-section input[type="checkbox"], #augment-slots-section input[type="checkbox"]')]
         .forEach(input => { if (formData[input.name] !== undefined) input.checked = formData[input.name]; });
@@ -309,6 +310,50 @@ function loadState() {
         augmentChoices.setChoiceByValue(formData['augment_blacklist']);
     }
 }
+
+
+// RESET ALL
+function resetAllFields() {
+    const form = document.querySelector('form');
+    if (!form) return;
+
+    form.reset();
+    localStorage.removeItem('grimDawnOptimizerForm');
+    localStorage.removeItem('activeTab');
+    localStorage.removeItem('scrollPositions');
+
+    if (componentChoices) {
+        componentChoices.removeActiveItems();
+        componentChoices.clearInput();
+    }
+
+    if (augmentChoices) {
+        augmentChoices.removeActiveItems();
+        augmentChoices.clearInput();
+    }
+
+    document.querySelectorAll('#resistances-section input[type="number"], #target-resistances-section input[type="number"]').forEach(input => {
+        input.value = input.defaultValue;
+    });
+
+    document.querySelectorAll('#component-slots-section input[type="checkbox"], #augment-slots-section input[type="checkbox"]').forEach(input => {
+        input.checked = input.defaultChecked;
+    });
+
+    document.querySelectorAll('#faction-dropdowns-section select').forEach(select => {
+        select.selectedIndex = 0;
+    });
+
+    const defaultTab = document.querySelector('.tab[data-tab="basic"]');
+    const defaultContent = document.getElementById('tab-basic');
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+    if (defaultTab && defaultContent) {
+        defaultTab.classList.add('active');
+        defaultContent.classList.add('active');
+    }
+}
+
 
 // -- Scroll position persistence --
 // Object to store scroll positions per tab
@@ -381,6 +426,7 @@ document.addEventListener('DOMContentLoaded', function () {
         loadNamesFromCSV('/data/augment_data.csv', 'augment-blacklist')
     ]).then(() => {
         loadState();
+
         //After executing the loading state, set the language
         const language = localStorage.getItem('language') || 'en';
         firstUpdateLanguage(language);
@@ -428,5 +474,12 @@ document.addEventListener('DOMContentLoaded', function () {
             componentChoices.passedElement.element.addEventListener('change', saveState);
         if (augmentChoices)
             augmentChoices.passedElement.element.addEventListener('change', saveState);
+
+        const resetBtn = document.getElementById('reset-all-btn');
+        if (resetBtn) {
+            resetBtn.addEventListener('click', resetAllFields);
+        } else {
+            console.error('Reset All button not found');
+        }
     });
 });

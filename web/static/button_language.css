@@ -12,6 +12,33 @@
     z-index: 1000;
 }
 
+.top-right-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.reset-btn {
+    background: #1a1a1a;
+    color: #eaf3fd;
+    border: 1px solid #333;
+    padding: 10px 18px;
+    border-radius: 9px;
+    font-size: 0.95em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.18s, transform 0.18s, border-color 0.18s;
+    box-shadow: none;
+    text-shadow: none;
+    letter-spacing: 0.4px;
+}
+
+.reset-btn:hover {
+    background: #2d2d2d;
+    border-color: #444;
+    transform: translateY(-1px);
+}
+
 /* 语言切换按钮 */
 .language-button {
     background: linear-gradient(90deg, var(--accent-green) 60%, var(--accent-blue));
