@@ -341,7 +341,8 @@ function resetAllFields() {
     });
 
     document.querySelectorAll('#faction-dropdowns-section select').forEach(select => {
-        select.selectedIndex = 0;
+        // Default to the last option, which is "Revered"
+        select.selectedIndex = 3;
     });
 
     const defaultTab = document.querySelector('.tab[data-tab="basic"]');
