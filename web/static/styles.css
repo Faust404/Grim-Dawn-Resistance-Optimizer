@@ -269,7 +269,7 @@ input[type="checkbox"]:focus-visible {
     color: var(--accent-green);
     font-size: 1.25em;
     font-weight: 600;
-    margin-bottom: 1em;
+    margin-bottom: 0;
     display: flex;
     align-items: center;
     gap: 0.5em;
@@ -277,6 +277,43 @@ input[type="checkbox"]:focus-visible {
     padding-left: 0.6em;
     letter-spacing: 1px;
     text-shadow: 0 1px 6px #181c2560;
+}
+
+.factions-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.faction-master-group {
+    min-width: 240px;
+    max-width: 100%;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.faction-master-group label {
+    margin-bottom: 0;
+    display: inline-flex;
+    align-items: center;
+    font-weight: 600;
+    color: var(--accent-green);
+    font-size: 0.95em;
+    white-space: nowrap;
+}
+
+.faction-master-group select {
+    width: auto;
+    min-width: 180px;
+    padding: 10px 12px;
+    border-radius: 9px;
+    border: 2px solid var(--input-border);
+    background: var(--input-bg);
+    color: var(--input-fg);
 }
 
 .dropdown-grid {

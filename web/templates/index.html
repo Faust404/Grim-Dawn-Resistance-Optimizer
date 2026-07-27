@@ -79,7 +79,19 @@
         </div>
 
         <div class="factions-section">
-          <h2>⚙️ Player Faction Standing</h2>
+          <div class="factions-header-row">
+            <h2>⚙️ Player Faction Standing</h2>
+            <div class="form-group faction-master-group">
+              <label for="faction-master-select">Set all faction standings:</label>
+              <select id="faction-master-select">
+                <option value="">Select a standing</option>
+                <option value="friendly">Friendly</option>
+                <option value="respected">Respected</option>
+                <option value="honored">Honored</option>
+                <option value="revered">Revered</option>
+              </select>
+            </div>
+          </div>
           <div id="faction-dropdowns-section" class="dropdown-grid"></div>
         </div>
 

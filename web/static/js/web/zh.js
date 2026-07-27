@@ -53,6 +53,8 @@ web_l10n_texts['zh'] = {
     
     // 声望部分
     "⚙️ Player Faction Standing":"⚙️ 角色各阵营声望",
+    "Set all faction standings:":"设置所有派系的声望:",
+    "Select a standing":"选择阵营声望",
     "Devil's Crossing":"恶魔十字",
     "Rovers":"流浪者",
     "Homestead":"霍姆斯特德",

@@ -480,6 +480,21 @@ document.addEventListener('DOMContentLoaded', function () {
             select.addEventListener('change', saveState);
         });
 
+        // Add event listener for the master faction select to update all faction dropdowns
+        const factionMasterSelect = document.getElementById('faction-master-select');
+        if (factionMasterSelect) {
+            factionMasterSelect.addEventListener('change', (event) => {
+                const value = event.target.value;
+                if (!value) return;
+                document.querySelectorAll('#faction-dropdowns-section select').forEach(select => {
+                    if ([...select.options].some(opt => opt.value === value)) {
+                        select.value = value;
+                        select.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                });
+            });
+        }
+
         if (componentChoices)
             componentChoices.passedElement.element.addEventListener('change', saveState);
         if (augmentChoices)
