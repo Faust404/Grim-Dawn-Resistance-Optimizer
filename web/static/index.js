@@ -345,6 +345,15 @@ function resetAllFields() {
         select.selectedIndex = 3;
     });
 
+    const resultsSection = document.getElementById('results-section');
+    const finalResistancesSection = document.getElementById('final-resistances-section');
+    if (resultsSection) {
+        resultsSection.style.display = 'none';
+    }
+    if (finalResistancesSection) {
+        finalResistancesSection.style.display = 'none';
+    }
+
     const defaultTab = document.querySelector('.tab[data-tab="basic"]');
     const defaultContent = document.getElementById('tab-basic');
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
