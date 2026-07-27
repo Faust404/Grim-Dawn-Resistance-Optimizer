@@ -169,31 +169,28 @@
           <tr>
             <td>{{ res }}</td>
             <td>
+              {% set target_resistance = target_resistances.get(res, 0) %}
+              {% set warning_threshold = (target_resistance * 0.75) | round(0, 'floor') %}
               <span class="res-val
-                {% if val >= 80 %}success
-                {% elif val >= 60 %}warning
+                {% if val >= target_resistance %}success
+                {% elif val >= warning_threshold %}warning
                 {% else %}danger
                 {% endif %}">
                 {{ val }}%
               </span>
             </td>
             <td>
-              {% set target_resistance = target_resistances.get(res) %}
-                <span class="res-val
-                  {% if target_resistance >= 80 %}success
-                  {% elif target_resistance >= 60 %}warning
-                  {% else %}danger
-                  {% endif %}">
+                <span class="res-val success">
                   {{ target_resistance }}%
                 </span>
             </td>
             <td>
               {% set gap_resistance = gap_resistances.get(res) %}
+              {% set gap_warning_threshold = (target_resistance * 0.25) | round(0, 'floor') %}
                 <span class="res-val
                   {% if gap_resistance == 0 %}success
-                  {% elif 0 < gap_resistance <= 20 %}warning
-                  {% elif gap_resistance >= 20 %}danger
-                  {% else %} 
+                  {% elif gap_resistance <= gap_warning_threshold %}warning
+                  {% else %}danger
                   {% endif %}">
                   {{ gap_resistance }}%
                 </span>
