@@ -152,6 +152,16 @@ def index():
             ("Health", "stat-health"),
             ("Move Speed", "stat-move-speed"),
             ("OA", "stat-oa"),
+            # Secondary resists: pure % stats; the CSV column value IS the percent.
+            ("Stun Resistance", "stat-res-stun"),
+            ("Freeze Resistance", "stat-res-freeze"),
+            ("Slow Resistance", "stat-res-slow"),
+            ("Petrify Resistance", "stat-res-petrify"),
+            ("Entrapment Resistance", "stat-res-entrapment"),
+            ("Skill Disruption Protection", "stat-res-disruption"),
+            ("Reflect Resistance", "stat-res-reflect"),
+            ("Life Leech Resistance", "stat-res-life-leech"),
+            ("Energy Leech Resistance", "stat-res-energy-leech"),
         ]
         priority_stats = [stat for stat, field in stat_tier_map if request.form.get(field) == "priority"]
         nice_to_have_stats = [stat for stat, field in stat_tier_map if request.form.get(field) == "nice"]

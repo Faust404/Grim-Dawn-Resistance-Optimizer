@@ -335,6 +335,21 @@ class ResistanceOptimizer:
         }
         return selected_items
 
+    def stat_flat_pct(self, item: pd.Series, stat: str) -> tuple[float, float]:
+        """Read a secondary stat's (flat, pct) gains from an item row.
+
+        Stats with a "<name> %" column read flat from "<name>" and pct from
+        "<name> %". The secondary resists (Stun Resistance, Freeze Resistance,
+        ...) have no flat form: their single CSV column IS the percent, so flat
+        is 0 and the column value is the pct gain.
+        """
+        pct_col = f"{stat} %"
+        if pct_col in item.index:
+            flat, pct = item.get(stat, 0), item.get(pct_col, 0)
+        else:
+            flat, pct = 0, item.get(stat, 0)
+        return 0 if pd.isna(flat) else flat, 0 if pd.isna(pct) else pct
+
     def optimize_resistances(
         self,
         secondary_stats: list[str] | list[list[str]] | None = None,
@@ -499,8 +514,7 @@ class ResistanceOptimizer:
             for slot in self.available_component_slots:
                 if item[slot] and (i, slot) in component_slot_vars:
                     for stat in all_secondary_stats:
-                        flat = item.get(stat, 0)
-                        pct = item.get(f"{stat} %", 0)
+                        flat, pct = self.stat_flat_pct(item, stat)
                         base_value = base_secondary_stat_values.get(stat, 1.0)
                         equiv_flat = flat + (base_value * pct / 100.0)
                         stat_gain_terms[stat].append(component_slot_vars[(i, slot)] * equiv_flat)
@@ -509,8 +523,7 @@ class ResistanceOptimizer:
             for slot in self.available_augment_slots:
                 if item[slot] and (i, slot) in augment_slot_vars:
                     for stat in all_secondary_stats:
-                        flat = item.get(stat, 0)
-                        pct = item.get(f"{stat} %", 0)
+                        flat, pct = self.stat_flat_pct(item, stat)
                         base_value = base_secondary_stat_values.get(stat, 1.0)
                         equiv_flat = flat + (base_value * pct / 100.0)
                         stat_gain_terms[stat].append(augment_slot_vars[(i, slot)] * equiv_flat)
@@ -598,8 +611,9 @@ class ResistanceOptimizer:
                     selected_items[slot]["component"] = item["Item"]
                     armor_absorption_percentage_gained += item.get("Armor Absorption %", 0)
                     for stat in all_secondary_stats:
-                        secondary_gains[stat]["flat"] += item.get(stat, 0)
-                        secondary_gains[stat]["pct"] += item.get(f"{stat} %", 0)
+                        flat, pct = self.stat_flat_pct(item, stat)
+                        secondary_gains[stat]["flat"] += flat
+                        secondary_gains[stat]["pct"] += pct
                     for res in self.resistance_types:
                         final_resistances[res] += item[res]
 
@@ -614,8 +628,9 @@ class ResistanceOptimizer:
                     selected_items[slot]["augment"] = item["Item"]
                     armor_absorption_percentage_gained += item.get("Armor Absorption %", 0)
                     for stat in all_secondary_stats:
-                        secondary_gains[stat]["flat"] += item.get(stat, 0)
-                        secondary_gains[stat]["pct"] += item.get(f"{stat} %", 0)
+                        flat, pct = self.stat_flat_pct(item, stat)
+                        secondary_gains[stat]["flat"] += flat
+                        secondary_gains[stat]["pct"] += pct
                     for res in self.resistance_types:
                         final_resistances[res] += item[res]
 

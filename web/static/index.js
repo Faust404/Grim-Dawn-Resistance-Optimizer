@@ -102,7 +102,7 @@ const factionOptions = [
 ];
 
 const secondaryStats = [
-    { label: "ADCTH%", name: "stat-adcth" },
+    { label: "ADCTH% (Attack Damage Converted to Health)", name: "stat-adcth" },
     { label: "Armor", name: "stat-armor" },
     { label: "Attack Speed%", name: "stat-attack-speed" },
     { label: "Cast Speed%", name: "stat-cast-speed" },
@@ -112,11 +112,29 @@ const secondaryStats = [
     { label: "Offensive Ability", name: "stat-oa" }
 ];
 
+// Secondary resists: pure % stats whose CSV column value IS the percent gain.
+// Alphabetical by label (they render below the secondary stats with a gap).
+const secondaryResists = [
+    { label: "Energy Leech Resistance", name: "stat-res-energy-leech" },
+    { label: "Entrapment Resistance", name: "stat-res-entrapment" },
+    { label: "Freeze Resistance", name: "stat-res-freeze" },
+    { label: "Life Leech Resistance", name: "stat-res-life-leech" },
+    { label: "Petrify Resistance", name: "stat-res-petrify" },
+    { label: "Reflect Resistance", name: "stat-res-reflect" },
+    { label: "Skill Disruption Protection", name: "stat-res-disruption" },
+    { label: "Slow Resistance", name: "stat-res-slow" },
+    { label: "Stun Resistance", name: "stat-res-stun" }
+];
+
+// Every stat the panel can optimize; both sub-sections share the priority
+// controls, bulk "Set all" links, save/restore, and Reset All.
+const allSecondaryStats = secondaryStats.concat(secondaryResists);
+
 const STAT_PRIORITY_OPTIONS = ["ignore", "nice", "priority"];
 
 // Current priority selection per stat, e.g. { "stat-oa": "priority", ... }
 const statPriorities = {};
-secondaryStats.forEach(s => { statPriorities[s.name] = "ignore"; });
+allSecondaryStats.forEach(s => { statPriorities[s.name] = "ignore"; });
 
 function prioControlHtml(name) {
     const current = statPriorities[name];
@@ -128,18 +146,22 @@ function prioControlHtml(name) {
         `</div>`;
 }
 
-function renderSecondaryStats() {
-    const cont = document.getElementById('secondary-stats-section');
-    if (!cont) return;
-    cont.innerHTML = '';
-    secondaryStats.forEach(s => {
-        cont.innerHTML += `
+function prioRowHtml(s) {
+    return `
         <div class="prow">
             <span class="plabel">${s.label}</span>
             ${prioControlHtml(s.name)}
             <input type="hidden" name="${s.name}" value="${statPriorities[s.name]}">
         </div>`;
-    });
+}
+
+function renderSecondaryStats() {
+    const cont = document.getElementById('secondary-stats-section');
+    if (!cont) return;
+    cont.innerHTML = '';
+    secondaryStats.forEach(s => { cont.innerHTML += prioRowHtml(s); });
+    cont.innerHTML += '<div class="stat-prio-divider"></div>';
+    secondaryResists.forEach(s => { cont.innerHTML += prioRowHtml(s); });
     // Freshly created buttons/labels are untagged, so re-tag and re-translate them
     // (bulk "Set all", Reset All, and saved-state restore all go through this render).
     if (typeof setLanguageTags === 'function' && typeof updateWebLocalizedText === 'function') {
@@ -167,7 +189,7 @@ function initSecondaryStats() {
     document.querySelectorAll('.pbulk a[data-all]').forEach(a => {
         a.addEventListener('click', () => {
             const v = a.dataset.all;
-            secondaryStats.forEach(s => { statPriorities[s.name] = v; });
+            allSecondaryStats.forEach(s => { statPriorities[s.name] = v; });
             renderSecondaryStats();
             saveState();
         });
@@ -428,7 +450,7 @@ function resetAllFields() {
         select.selectedIndex = 3;
     });
 
-    secondaryStats.forEach(s => { statPriorities[s.name] = "ignore"; });
+    allSecondaryStats.forEach(s => { statPriorities[s.name] = "ignore"; });
     renderSecondaryStats();
 
     const resultsSection = document.getElementById('results-section');

@@ -135,10 +135,22 @@ web_l10n_texts['zh'] = {
     "Offensive Ability":"进攻能力",
     "Defensive Ability":"防御能力",
     "ADCTH%":"攻击伤害转化生命%",
+    "ADCTH% (Attack Damage Converted to Health)":"攻击伤害转化生命%",
     "Armor":"护甲",
     "Attack Speed%":"攻击速度%",
     "Cast Speed%":"施法速度%",
     "Move Speed%":"移动速度%",
+
+    // 次级抗性部分
+    "Stun Resistance":"眩晕抗性",
+    "Freeze Resistance":"冰冻抗性",
+    "Slow Resistance":"减速抗性",
+    "Petrify Resistance":"石化抗性",
+    "Entrapment Resistance":"陷阱抗性",
+    "Skill Disruption Protection":"技能打断保护",
+    "Reflect Resistance":"反射抗性",
+    "Life Leech Resistance":"生命吸取抗性",
+    "Energy Leech Resistance":"能量吸取抗性",
 
     // 次要属性收益表格
     "Secondary Stat Gains":"次要属性收益",

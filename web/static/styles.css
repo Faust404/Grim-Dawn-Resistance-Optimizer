@@ -400,6 +400,12 @@ input[type="checkbox"]:focus-visible {
     padding: 2px 10px;
 }
 
+.stat-prio-divider {
+    height: 1px;
+    background: var(--location-border);
+    margin: 10px 0 6px;
+}
+
 .prow {
     display: flex;
     align-items: center;
