@@ -191,6 +191,9 @@ def index():
             secondary_stat_labels.get(stat, stat): gains
             for stat, gains in secondary_gains.items()
         }
+        # Sort alphabetically by display label so the gains table is stable
+        # regardless of which order the optimizer's tiers returned.
+        secondary_gains = dict(sorted(secondary_gains.items()))
 
         # Calculate the resistance gaps if any after optimization
         gap_resistances = {
