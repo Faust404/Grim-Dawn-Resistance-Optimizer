@@ -431,7 +431,7 @@ class ResistanceOptimizer:
             + (item_penalty * (pulp.lpSum(component_count) + pulp.lpSum(augment_count)))
         )
 
-        primary_problem.solve(pulp.HiGHS(msg=0))
+        primary_problem.solve(pulp.PULP_CBC_CMD(msg=0))
 
         status = pulp.LpStatus[primary_problem.status]
         if status != "Optimal":
