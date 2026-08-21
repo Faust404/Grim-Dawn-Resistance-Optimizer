@@ -11,11 +11,12 @@ document.querySelectorAll('.tab').forEach(tab => {
 // DYNAMIC FORM GENERATION SCRIPT
 // -- DATA ARRAYS --
 const weaponTemplates = [
-    { label: "One-Handed Melee-Caster Weapon + Shield", value: "one-hand-shield" },
     { label: "One-Handed Melee-Caster Weapon + Off-Hand", value: "one-hand-offhand" },
     { label: "One-Handed Melee-Caster Weapon + One-Handed Melee-Caster Weapon", value: "one-hand-one-hand" },
+    { label: "One-Handed Melee-Caster Weapon + Shield", value: "one-hand-shield" },
     { label: "One-Handed Ranged Weapon + Off-Hand", value: "ranged-offhand" },
     { label: "One-Handed Ranged Weapon + One-Handed Ranged Weapon", value: "ranged-ranged" },
+    { label: "One-Handed Ranged Weapon + Shield", value: "ranged-shield" },
     { label: "Two-Handed Melee Weapon", value: "two-hand-melee" },
     { label: "Two-Handed Ranged Weapon", value: "two-hand-ranged" }
 ];

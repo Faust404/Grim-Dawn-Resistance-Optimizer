@@ -210,6 +210,8 @@ class ResistanceOptimizer:
             gear_to_keep = ["Ranged-1h 1", "Off-Hand"]
         elif self.weapon_template == "ranged-ranged":
             gear_to_keep = ["Ranged-1h 1", "Ranged-1h 2"]
+        elif self.weapon_template == "ranged-shield":
+            gear_to_keep = ["Ranged-1h 1", "Shield"]
         elif self.weapon_template == "two-hand-melee":
             gear_to_keep = ["Melee-2h"]
         elif self.weapon_template == "two-hand-ranged":
