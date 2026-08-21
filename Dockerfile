@@ -20,5 +20,7 @@ COPY . /app/
 # Expose port 5000 for Gunicorn
 EXPOSE 5000
 
-# Run Gunicorn as the main process
-CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "web.app:app"]
+# Run Gunicorn as the main process. Timeout raised from the 30s default:
+# resistance solves can take a while at peak load and should never get the
+# worker killed mid-request.
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "--timeout", "120", "web.app:app"]
