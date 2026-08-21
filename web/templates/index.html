@@ -115,6 +115,19 @@
           </div>
         </div>
 
+        <div class="section">
+          <div class="resistances-header-row">
+            <h2>⚙️ Secondary Stat Optimization</h2>
+            <div class="form-group target-master-group pbulk">
+              <label>Set all:</label>
+              <a data-all="ignore">Ignore</a> ·
+              <a data-all="nice">Nice to Have</a> ·
+              <a data-all="priority">Priority</a>
+            </div>
+          </div>
+          <div id="secondary-stats-section" class="stat-prio-section"></div>
+        </div>
+
       </div>
 
       <button type="submit" class="optimize-btn">🚀 Run Optimization</button>
@@ -170,6 +183,7 @@
     </div>
     {% endif %}
 
+    <div class="results-panels">
     {% if final_resistances %}
     <div id="final-resistances-section" class="section final-resistances">
       <h2>Final Values</h2>
@@ -246,6 +260,31 @@
     </table>
   </div>
   {% endif %}
+
+    {% if secondary_gains %}
+    <div id="secondary-gains-section" class="section final-resistances secondary-gains">
+      <h2>Secondary Stat Gains</h2>
+      <table class="resistances-table">
+        <thead>
+          <tr>
+            <th>Stat</th>
+            <th>Flat</th>
+            <th>%</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for stat, gains in secondary_gains.items() %}
+          <tr>
+            <td>{{ stat }}</td>
+            <td>{{ gains['flat'] }}</td>
+            <td>{{ gains['pct'] }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+    </div>
 
   </div>
 

@@ -4,7 +4,6 @@ from math import ceil
 import pandas as pd
 import pulp
 
-
 @dataclass
 class ResistanceOptimizer:
     all_gear_slots: list[str] = None
@@ -322,13 +321,15 @@ class ResistanceOptimizer:
         }
         return selected_items
 
-    def optimize_resistances(self):
-        # Create the problem - now minimizing the total shortfall in resistances and armor absorption percentage
-        prob = pulp.LpProblem("Resistance_Optimization", pulp.LpMinimize)
-
+    def optimize_resistances(
+        self,
+        secondary_stats: list[str] | list[list[str]] | None = None,
+        base_secondary_stat_values: dict[str, float] | float | None = None,
+    ):
         # Decision variables: binary variable for each component-slot combination
         component_slot_vars = {}
         for i, item in self.useful_components.iterrows():
+            # Initialize the secondary_stat_gain list
             allowed_gear_slots = [slot for slot in self.available_component_slots if item[slot]]
             for slot in allowed_gear_slots:
                 component_slot_vars[(i, slot)] = pulp.LpVariable(f"comp_{i}_{slot}", cat="Binary")
@@ -336,29 +337,10 @@ class ResistanceOptimizer:
         # Decision variables: binary variable for each augment-slot combination
         augment_slot_vars = {}
         for i, item in self.useful_augments.iterrows():
+            # Initialize the augment_slot_vars dictionary
             allowed_gear_slots = [slot for slot in self.available_augment_slots if item[slot]]
             for slot in allowed_gear_slots:
                 augment_slot_vars[(i, slot)] = pulp.LpVariable(f"aug_{i}_{slot}", cat="Binary")
-
-        # Constraint: Each gear slot can only have one component
-        for slot in self.available_component_slots:
-            items_for_slot = [
-                (i, slot)
-                for i, item in self.useful_components.iterrows()
-                if item[slot] and (i, slot) in component_slot_vars
-            ]
-            if items_for_slot:
-                prob += pulp.lpSum(component_slot_vars[idx] for idx in items_for_slot) <= 1
-
-        # Constraint: Each gear slot can only have one augment
-        for slot in self.available_augment_slots:
-            items_for_slot = [
-                (i, slot)
-                for i, item in self.useful_augments.iterrows()
-                if item[slot] and (i, slot) in augment_slot_vars
-            ]
-            if items_for_slot:
-                prob += pulp.lpSum(augment_slot_vars[idx] for idx in items_for_slot) <= 1
 
         # Error variables for shortfall in resistances and armor absorption percentage
         resistance_shortfall = {
@@ -370,6 +352,7 @@ class ResistanceOptimizer:
         # Secondary objective: Minimize number of components used
         component_count = []
         for i, item in self.useful_components.iterrows():
+            # Count components for optimization
             allowed_gear_slots = [slot for slot in self.available_component_slots if item[slot]]
             if allowed_gear_slots:
                 component_count.append(pulp.lpSum(component_slot_vars[(i, slot)] for slot in allowed_gear_slots))
@@ -381,58 +364,214 @@ class ResistanceOptimizer:
             if allowed_gear_slots:
                 augment_count.append(pulp.lpSum(augment_slot_vars[(i, slot)] for slot in allowed_gear_slots))
 
-        # Primary objective: Minimize total shortfall in resistances
-        for res in self.resistance_types:
-            gained = []
+        def add_core_constraints(problem):
+            # Constraint: Each gear slot can only have one component
+            for slot in self.available_component_slots:
+                items_for_slot = [
+                    (i, slot)
+                    for i, item in self.useful_components.iterrows()
+                    if item[slot] and (i, slot) in component_slot_vars
+                ]
+                if items_for_slot:
+                    problem += pulp.lpSum(component_slot_vars[idx] for idx in items_for_slot) <= 1
+
+            # Constraint: Each gear slot can only have one augment
+            for slot in self.available_augment_slots:
+                items_for_slot = [
+                    (i, slot)
+                    for i, item in self.useful_augments.iterrows()
+                    if item[slot] and (i, slot) in augment_slot_vars
+                ]
+                if items_for_slot:
+                    problem += pulp.lpSum(augment_slot_vars[idx] for idx in items_for_slot) <= 1
+
+            # Primary objective: Minimize total shortfall in resistances
+            for res in self.resistance_types:
+                gained = []
+                for i, item in self.useful_components.iterrows():
+                    for slot in self.available_component_slots:
+                        if item[slot] and (i, slot) in component_slot_vars:
+                            gained.append(component_slot_vars[(i, slot)] * item[res])
+
+                for i, item in self.useful_augments.iterrows():
+                    for slot in self.available_augment_slots:
+                        if item[slot] and (i, slot) in augment_slot_vars:
+                            gained.append(augment_slot_vars[(i, slot)] * item[res])
+
+                problem += self.current_resistances[res] + pulp.lpSum(gained) + resistance_shortfall[res] >= self.target_resistances[res]
+
+            # Primary objective: Minimize total shortfall in armor absorption percentage
+            armor_abs_gained = []
             for i, item in self.useful_components.iterrows():
                 for slot in self.available_component_slots:
                     if item[slot] and (i, slot) in component_slot_vars:
-                        gained.append(component_slot_vars[(i, slot)] * item[res])
+                        armor_abs_gained.append(component_slot_vars[(i, slot)] * item.get("Armor Absorption %", 0))
 
             for i, item in self.useful_augments.iterrows():
                 for slot in self.available_augment_slots:
                     if item[slot] and (i, slot) in augment_slot_vars:
-                        gained.append(augment_slot_vars[(i, slot)] * item[res])
+                        armor_abs_gained.append(augment_slot_vars[(i, slot)] * item.get("Armor Absorption %", 0))
 
-            prob += self.current_resistances[res] + pulp.lpSum(gained) + resistance_shortfall[res] >= self.target_resistances[res]
+            armor_absorption_percentage_gained_expr = pulp.lpSum(armor_abs_gained)
+            problem += armor_absorption_percentage_gained_expr + armor_shortfall >= self.required_armor_abs_percentage
 
-        # Primary objective: Minimize total shortfall in armor absorption percentage
-        armor_abs_gained = []
-        for i, item in self.useful_components.iterrows():
-            for slot in self.available_component_slots:
-                if item[slot] and (i, slot) in component_slot_vars:
-                    armor_abs_gained.append(component_slot_vars[(i, slot)] * item.get("Armor Absorption %", 0))
-
-        for i, item in self.useful_augments.iterrows():
-            for slot in self.available_augment_slots:
-                if item[slot] and (i, slot) in augment_slot_vars:
-                    armor_abs_gained.append(augment_slot_vars[(i, slot)] * item.get("Armor Absorption %", 0))
-
-        # Make sure armor abs percentage gained from items is more than the required 43% to hit the cap
-        armor_absorption_percentage_gained = pulp.lpSum(armor_abs_gained)
-        prob += armor_absorption_percentage_gained + armor_shortfall >= self.required_armor_abs_percentage
+            return armor_absorption_percentage_gained_expr
 
         # Penalize shortfalls heavily in the objective function to prioritize meeting resistance and armor absorption targets
         res_penalty = 1e4
         armor_penalty = 1e3
         item_penalty = 1
 
-        prob += (
+        primary_problem = pulp.LpProblem("Resistance_Optimization", pulp.LpMinimize)
+        # Add core constraints to the primary problem
+        add_core_constraints(primary_problem)
+        primary_problem += (
             (res_penalty * pulp.lpSum(resistance_shortfall.values()))
             + (armor_penalty * armor_shortfall)
             + (item_penalty * (pulp.lpSum(component_count) + pulp.lpSum(augment_count)))
         )
 
-        # Initialize the solver and solve the problem
-        prob.solve(pulp.PULP_CBC_CMD(msg=0))
+        primary_problem.solve(pulp.HiGHS(msg=0))
 
-        status = pulp.LpStatus[prob.status]
+        status = pulp.LpStatus[primary_problem.status]
         if status != "Optimal":
             return None, None, None
+
+        optimal_resistance_shortfalls = {
+            res: resistance_shortfall[res].varValue or 0
+            for res in self.resistance_types
+        }
+        optimal_armor_shortfall = armor_shortfall.varValue or 0
+
+        # Secondary optimization: priority tiers. `secondary_stats` supports two shapes:
+        #   - a flat list ["OA", "DA"]            -> strict priority (OA > DA)
+        #   - a list of tiers [["OA", "DA"], ["Health"]]
+        #     -> stats inside one tier have EQUAL priority and are balanced together
+        #     -> tiers keep strict priority (tier 1 above tier 2, ...)
+        # A single weighted sum of raw gains cannot guarantee either behavior: a stat
+        # with larger item values dominates regardless of priority (e.g. weight 5 * OA
+        # is beaten when DA gains exceed 5x OA gains). So tiers are solved
+        # lexicographically, and within a tier every stat's gain is normalized by its
+        # own achievable maximum, putting all stats on a comparable 0-1 scale before
+        # weighting them equally.
+        # None (the default) means no secondary optimization at all: only the primary
+        # shortfall/item-count problem is solved, like the production optimizer.
+        if secondary_stats is None:
+            secondary_stats = []
+
+        # Normalize the input into tiers; a flat list means strict priority
+        if secondary_stats and isinstance(secondary_stats[0], list):
+            stat_tiers: list[list[str]] = [list(tier) for tier in secondary_stats]
+        else:
+            stat_tiers = [[stat] for stat in secondary_stats]
+
+        all_secondary_stats = [stat for tier in stat_tiers for stat in tier]
+
+        # Per-stat base values used to linearize percent gains into equivalent flat
+        # units: percent of the stat's typical in-game base (OA/DA/Armor ~2500,
+        # Health ~10k). Stats without an entry default to 1 (pure % stats like
+        # ADCTH/Move/Attack/Cast Speed have no flat items and are just scaled by 1).
+        # A plain float is accepted for backwards compatibility (same base for all).
+        if base_secondary_stat_values is None:
+            base_secondary_stat_values = {}
+        elif isinstance(base_secondary_stat_values, (int, float)):
+            base_secondary_stat_values = {
+                stat: float(base_secondary_stat_values) for stat in all_secondary_stats
+            }
+
+        # Build per-stat gain expressions (linearized percent contribution)
+        stat_gain_terms: dict[str, list] = {stat: [] for stat in all_secondary_stats}
+        for i, item in self.useful_components.iterrows():
+            for slot in self.available_component_slots:
+                if item[slot] and (i, slot) in component_slot_vars:
+                    for stat in all_secondary_stats:
+                        flat = item.get(stat, 0)
+                        pct = item.get(f"{stat} %", 0)
+                        base_value = base_secondary_stat_values.get(stat, 1.0)
+                        equiv_flat = flat + (base_value * pct / 100.0)
+                        stat_gain_terms[stat].append(component_slot_vars[(i, slot)] * equiv_flat)
+
+        for i, item in self.useful_augments.iterrows():
+            for slot in self.available_augment_slots:
+                if item[slot] and (i, slot) in augment_slot_vars:
+                    for stat in all_secondary_stats:
+                        flat = item.get(stat, 0)
+                        pct = item.get(f"{stat} %", 0)
+                        base_value = base_secondary_stat_values.get(stat, 1.0)
+                        equiv_flat = flat + (base_value * pct / 100.0)
+                        stat_gain_terms[stat].append(augment_slot_vars[(i, slot)] * equiv_flat)
+
+        total_items_expr = pulp.lpSum(component_count) + pulp.lpSum(augment_count)
+        tiny_eps = 1e-4        # slack for preservation constraints and raw-gain tie-breaks
+        normalized_eps = 1e-6  # tie-break on normalized (0-1) objectives, below any real gain difference
+
+        # Build a sub-problem that pins the primary shortfalls and preserves every
+        # higher-priority stat already optimized.
+        def build_secondary_problem(preserved_values: dict[str, float]) -> pulp.LpProblem:
+            sub_problem = pulp.LpProblem("Secondary_Stat_Optimization", pulp.LpMaximize)
+            add_core_constraints(sub_problem)
+
+            # Pin the primary shortfalls so resists/AA targets stay exactly as before
+            for res, shortfall_value in optimal_resistance_shortfalls.items():
+                sub_problem += resistance_shortfall[res] == shortfall_value
+            sub_problem += armor_shortfall == optimal_armor_shortfall
+
+            # Keep every higher-priority stat at its optimum (tiny slack for solver tolerance)
+            for stat, opt_value in preserved_values.items():
+                sub_problem += pulp.lpSum(stat_gain_terms[stat]) >= opt_value - tiny_eps
+
+            return sub_problem
+
+        # Achieved values that lower tiers must preserve
+        preserved_values: dict[str, float] = {}
+
+        for tier in stat_tiers:
+            # 1) Per-stat maxima inside this tier: the normalization scale that makes
+            #    equal-priority stats comparable. A stat with no item sources has max 0
+            #    and is simply excluded from the balanced objective.
+            max_gain: dict[str, float] = {}
+            for stat in tier:
+                sub_problem = build_secondary_problem(preserved_values)
+                sub_problem += pulp.lpSum(stat_gain_terms[stat]) - tiny_eps * total_items_expr
+                sub_problem.solve(pulp.HiGHS(msg=0))
+
+                if pulp.LpStatus[sub_problem.status] != "Optimal":
+                    return None, None, None
+
+                max_gain[stat] = pulp.lpSum(stat_gain_terms[stat]).value()
+
+            # 2) Balanced solve for equal-priority stats: maximize the sum of normalized
+            #    gains so no stat's raw magnitude can dominate the others. For a
+            #    single-stat tier the max solve above is already the optimum.
+            if len(tier) > 1:
+                normalizable_stats = [stat for stat in tier if max_gain[stat] > 0]
+                if normalizable_stats:
+                    sub_problem = build_secondary_problem(preserved_values)
+                    sub_problem += (
+                        pulp.lpSum(
+                            pulp.lpSum(stat_gain_terms[stat]) / max_gain[stat]
+                            for stat in normalizable_stats
+                        )
+                        - normalized_eps * total_items_expr
+                    )
+                    sub_problem.solve(pulp.HiGHS(msg=0))
+
+                    if pulp.LpStatus[sub_problem.status] != "Optimal":
+                        return None, None, None
+
+            # 3) Record the values achieved in this tier; lower tiers must keep them
+            for stat in tier:
+                preserved_values[stat] = pulp.lpSum(stat_gain_terms[stat]).value()
 
         selected_items = self.generated_selected_items_dict()
         final_resistances = self.current_resistances.copy()
         armor_absorption_percentage_gained = 0
+
+        # Raw flat/% gains of the chosen items, per secondary stat the user asked
+        # to optimize (empty when no secondary optimization was requested)
+        secondary_gains: dict[str, dict[str, float]] = {
+            stat: {"flat": 0, "pct": 0} for stat in all_secondary_stats
+        }
 
         for i, item in self.useful_components.iterrows():
             allowed_gear_slots = [slot for slot in self.available_component_slots if item[slot]]
@@ -444,6 +583,9 @@ class ResistanceOptimizer:
                 ):
                     selected_items[slot]["component"] = item["Item"]
                     armor_absorption_percentage_gained += item.get("Armor Absorption %", 0)
+                    for stat in all_secondary_stats:
+                        secondary_gains[stat]["flat"] += item.get(stat, 0)
+                        secondary_gains[stat]["pct"] += item.get(f"{stat} %", 0)
                     for res in self.resistance_types:
                         final_resistances[res] += item[res]
 
@@ -457,6 +599,9 @@ class ResistanceOptimizer:
                 ):
                     selected_items[slot]["augment"] = item["Item"]
                     armor_absorption_percentage_gained += item.get("Armor Absorption %", 0)
+                    for stat in all_secondary_stats:
+                        secondary_gains[stat]["flat"] += item.get(stat, 0)
+                        secondary_gains[stat]["pct"] += item.get(f"{stat} %", 0)
                     for res in self.resistance_types:
                         final_resistances[res] += item[res]
 
@@ -473,4 +618,9 @@ class ResistanceOptimizer:
         self.final_armor_abs_percentage = round(
             self.current_armor_abs_percentage * (1 + (armor_absorption_percentage_gained / 100)), 1
         )
-        return selected_items_with_urls_and_tags, final_resistances, self.final_armor_abs_percentage
+        return (
+            selected_items_with_urls_and_tags,
+            final_resistances,
+            self.final_armor_abs_percentage,
+            secondary_gains,
+        )

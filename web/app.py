@@ -26,6 +26,7 @@ def index():
     unavailable_augment_slots = None
     final_armor_abs_percentage: int = 0
     gap_armor_abs_percentage: int = 0
+    secondary_gains = None
     if request.method == "POST":
         weapon_template = request.form.get("template")
         char_level = int(request.form.get("char-level", 100))
@@ -138,7 +139,58 @@ def index():
             augment_blacklist=augment_blacklist,
             player_faction_standings=player_faction_standings,
         )
-        selected_items_with_urls_and_tags, final_resistances, final_armor_abs_percentage = optimizer.optimize_resistances()
+        # Build the secondary-stat priority tiers from the advanced tab:
+        #   Priority stats -> first tier, Nice to Have stats -> second tier,
+        #   Ignore stats -> excluded entirely.
+        # E.g. 2 priority + 2 nice-to-have stats becomes [["A", "B"], ["C", "D"]].
+        stat_tier_map = [
+            ("ADCTH", "stat-adcth"),
+            ("Armor", "stat-armor"),
+            ("Attack Speed", "stat-attack-speed"),
+            ("Cast Speed", "stat-cast-speed"),
+            ("DA", "stat-da"),
+            ("Health", "stat-health"),
+            ("Move Speed", "stat-move-speed"),
+            ("OA", "stat-oa"),
+        ]
+        priority_stats = [stat for stat, field in stat_tier_map if request.form.get(field) == "priority"]
+        nice_to_have_stats = [stat for stat, field in stat_tier_map if request.form.get(field) == "nice"]
+        if priority_stats and nice_to_have_stats:
+            secondary_stats = [priority_stats, nice_to_have_stats]
+        elif priority_stats:
+            secondary_stats = [priority_stats]
+        elif nice_to_have_stats:
+            secondary_stats = [nice_to_have_stats]
+        else:
+            secondary_stats = []
+
+        # Base value used to linearize % stat gains into equivalent flat units
+        # (typical in-game base value of the stat; %-only stats just use 1).
+        secondary_stat_base_values = {
+            "OA": 2500,
+            "DA": 2500,
+            "Armor": 2500,
+            "Health": 10000,
+        }
+
+        selected_items_with_urls_and_tags, final_resistances, final_armor_abs_percentage, secondary_gains = optimizer.optimize_resistances(secondary_stats, secondary_stat_base_values)
+
+        # Backend stat keys -> display labels (same labels as the UI selection rows,
+        # so the i18n translations apply to the gains table too)
+        secondary_stat_labels = {
+            "ADCTH": "ADCTH%",
+            "Armor": "Armor",
+            "Attack Speed": "Attack Speed%",
+            "Cast Speed": "Cast Speed%",
+            "DA": "Defensive Ability",
+            "Health": "Health",
+            "Move Speed": "Move Speed%",
+            "OA": "Offensive Ability",
+        }
+        secondary_gains = {
+            secondary_stat_labels.get(stat, stat): gains
+            for stat, gains in secondary_gains.items()
+        }
 
         # Calculate the resistance gaps if any after optimization
         gap_resistances = {
@@ -155,6 +207,7 @@ def index():
         gap_resistances=gap_resistances,
         final_armor_abs_percentage=int(final_armor_abs_percentage),
         gap_armor_abs_percentage=gap_armor_abs_percentage,
+        secondary_gains=secondary_gains,
     )
 
 

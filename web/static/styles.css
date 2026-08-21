@@ -392,6 +392,89 @@ input[type="checkbox"]:focus-visible {
     width: 100%;
 }
 
+/* Secondary stat priority selection */
+.stat-prio-section {
+    background: var(--location-bg);
+    border-radius: 8px;
+    border: 1.5px solid var(--location-border);
+    padding: 2px 10px;
+}
+
+.prow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 4px 0;
+    border-bottom: 1px solid var(--location-border);
+}
+
+.prow:last-child {
+    border-bottom: none;
+}
+
+.plabel {
+    color: var(--input-fg);
+    font-weight: 500;
+    letter-spacing: 0.2px;
+    flex: 1;
+    font-size: 0.95em;
+}
+
+.prio {
+    display: flex;
+    flex: none;
+    border: 1px solid var(--location-border);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.prio button {
+    width: 82px;
+    padding: 3px 4px;
+    border: 0;
+    border-left: 1px solid var(--location-border);
+    border-radius: 0;
+    background: var(--input-bg);
+    color: var(--input-fg);
+    font-size: 0.75em;
+    line-height: 1.15;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;   /* keep "Nice to Have" on one line so buttons don't grow vertically */
+    text-align: center;
+    transition: background 0.15s, color 0.15s;
+}
+
+.prio button:first-child {
+    border-left: 0;
+}
+
+.prio button.on[data-v="ignore"] {
+    background: #4b525d;
+    color: #dbe1ea;
+    font-weight: 600;
+}
+
+.prio button.on[data-v="nice"] {
+    background: #2f4a6b;
+    color: #cfe6ff;
+    font-weight: 600;
+}
+
+.prio button.on[data-v="priority"] {
+    background: var(--accent-green);
+    color: #202522;
+    font-weight: 700;
+}
+
+.pbulk a {
+    cursor: pointer;
+    text-decoration: underline;
+    color: var(--accent-green);
+    margin: 0 2px;
+}
+
 /* Container and main parts styling for Choices.js multi-select */
 .choices,
 .choices__inner,
@@ -635,4 +718,20 @@ input[type="checkbox"]:focus-visible {
 .res-val.danger {
     color: #ff3f68;
     font-weight: 600;
+}
+
+/* Results panels: Final Values and Secondary Stat Gains sit side by side */
+.results-panels {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: stretch;
+    gap: 24px;
+    margin-top: 2.5em;
+}
+
+.results-panels > .section {
+    flex: 1 1 380px;
+    max-width: 560px;
+    margin: 0;   /* cancel the auto-centering margins used when the panels were stacked */
 }

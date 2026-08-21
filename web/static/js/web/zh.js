@@ -125,4 +125,24 @@ web_l10n_texts['zh'] = {
     "Chaos Resistance":"混乱抗性",
     "Armor Absorption":"护甲吸收",
 
+    // 次要属性优化部分
+    "⚙️ Secondary Stat Optimization":"⚙️ 次要属性优化",
+    "Set all:":"全部设置：",
+    "Ignore":"忽略",
+    "Nice to Have":"尽量满足",
+    "Priority":"优先",
+    "Health":"生命值",
+    "Offensive Ability":"进攻能力",
+    "Defensive Ability":"防御能力",
+    "ADCTH%":"攻击伤害转化生命%",
+    "Armor":"护甲",
+    "Attack Speed%":"攻击速度%",
+    "Cast Speed%":"施法速度%",
+    "Move Speed%":"移动速度%",
+
+    // 次要属性收益表格
+    "Secondary Stat Gains":"次要属性收益",
+    "Stat":"属性",
+    "Flat":"固定值",
+
 }

@@ -100,6 +100,79 @@ const factionOptions = [
     { value: "revered", label: "Revered" }
 ];
 
+const secondaryStats = [
+    { label: "ADCTH%", name: "stat-adcth" },
+    { label: "Armor", name: "stat-armor" },
+    { label: "Attack Speed%", name: "stat-attack-speed" },
+    { label: "Cast Speed%", name: "stat-cast-speed" },
+    { label: "Defensive Ability", name: "stat-da" },
+    { label: "Health", name: "stat-health" },
+    { label: "Move Speed%", name: "stat-move-speed" },
+    { label: "Offensive Ability", name: "stat-oa" }
+];
+
+const STAT_PRIORITY_OPTIONS = ["ignore", "nice", "priority"];
+
+// Current priority selection per stat, e.g. { "stat-oa": "priority", ... }
+const statPriorities = {};
+secondaryStats.forEach(s => { statPriorities[s.name] = "ignore"; });
+
+function prioControlHtml(name) {
+    const current = statPriorities[name];
+    return `<div class="prio" data-key="${name}">` +
+        STAT_PRIORITY_OPTIONS.map(v => {
+            const label = v === "nice" ? "Nice to Have" : v.charAt(0).toUpperCase() + v.slice(1);
+            return `<button type="button" data-v="${v}"${v === current ? ' class="on"' : ''}>${label}</button>`;
+        }).join('') +
+        `</div>`;
+}
+
+function renderSecondaryStats() {
+    const cont = document.getElementById('secondary-stats-section');
+    if (!cont) return;
+    cont.innerHTML = '';
+    secondaryStats.forEach(s => {
+        cont.innerHTML += `
+        <div class="prow">
+            <span class="plabel">${s.label}</span>
+            ${prioControlHtml(s.name)}
+            <input type="hidden" name="${s.name}" value="${statPriorities[s.name]}">
+        </div>`;
+    });
+    // Freshly created buttons/labels are untagged, so re-tag and re-translate them
+    // (bulk "Set all", Reset All, and saved-state restore all go through this render).
+    if (typeof setLanguageTags === 'function' && typeof updateWebLocalizedText === 'function') {
+        setLanguageTags();
+        updateWebLocalizedText();
+    }
+}
+
+function initSecondaryStats() {
+    const cont = document.getElementById('secondary-stats-section');
+    if (!cont) return;
+
+    // Toggle a single stat's priority (delegated so re-renders keep working)
+    cont.addEventListener('click', (e) => {
+        const btn = e.target.closest('.prio button');
+        if (!btn) return;
+        const name = btn.closest('.prio').dataset.key;
+        statPriorities[name] = btn.dataset.v;
+        [...btn.parentElement.children].forEach(x => x.classList.toggle('on', x === btn));
+        cont.querySelector(`input[name="${name}"]`).value = statPriorities[name];
+        saveState();
+    });
+
+    // Bulk "Set all" links
+    document.querySelectorAll('.pbulk a[data-all]').forEach(a => {
+        a.addEventListener('click', () => {
+            const v = a.dataset.all;
+            secondaryStats.forEach(s => { statPriorities[s.name] = v; });
+            renderSecondaryStats();
+            saveState();
+        });
+    });
+}
+
 // -- RENDER FUNCTIONS --
 function renderWeaponTemplate(templateArr, selectId, defaultValue) {
     const sel = document.getElementById(selectId);
@@ -275,6 +348,9 @@ function saveState() {
     [...document.querySelectorAll('#faction-dropdowns-section select')]
         .forEach(select => formData[select.name] = select.value);
 
+    [...document.querySelectorAll('#secondary-stats-section input[type="hidden"]')]
+        .forEach(input => formData[input.name] = input.value);
+
     formData['component_blacklist'] = componentChoices ? componentChoices.getValue(true) : [];
     formData['augment_blacklist'] = augmentChoices ? augmentChoices.getValue(true) : [];
 
@@ -302,6 +378,12 @@ function loadState() {
 
     [...document.querySelectorAll('#faction-dropdowns-section select')]
         .forEach(select => { if (formData[select.name] !== undefined) select.value = formData[select.name]; });
+
+    [...document.querySelectorAll('#secondary-stats-section input[type="hidden"]')]
+        .forEach(input => {
+            if (formData[input.name] !== undefined) statPriorities[input.name] = formData[input.name];
+        });
+    renderSecondaryStats();
 
     if (componentChoices && Array.isArray(formData['component_blacklist'])) {
         componentChoices.setChoiceByValue(formData['component_blacklist']);
@@ -345,13 +427,20 @@ function resetAllFields() {
         select.selectedIndex = 3;
     });
 
+    secondaryStats.forEach(s => { statPriorities[s.name] = "ignore"; });
+    renderSecondaryStats();
+
     const resultsSection = document.getElementById('results-section');
     const finalResistancesSection = document.getElementById('final-resistances-section');
+    const secondaryGainsSection = document.getElementById('secondary-gains-section');
     if (resultsSection) {
         resultsSection.style.display = 'none';
     }
     if (finalResistancesSection) {
         finalResistancesSection.style.display = 'none';
+    }
+    if (secondaryGainsSection) {
+        secondaryGainsSection.style.display = 'none';
     }
 
     const defaultTab = document.querySelector('.tab[data-tab="basic"]');
@@ -429,6 +518,8 @@ document.addEventListener('DOMContentLoaded', function () {
     renderCheckboxGroup(componentSlots, 'component-slots-section');
     renderCheckboxGroup(augmentSlots, 'augment-slots-section');
     renderFactionDropdowns(factions, factionOptions, 'faction-dropdowns-section');
+    renderSecondaryStats();
+    initSecondaryStats();
 
     // Load CSVs and initialize both multi-selects before loading the saved state
     Promise.all([
