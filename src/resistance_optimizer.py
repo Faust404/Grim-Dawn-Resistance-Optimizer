@@ -533,7 +533,7 @@ class ResistanceOptimizer:
             for stat in tier:
                 sub_problem = build_secondary_problem(preserved_values)
                 sub_problem += pulp.lpSum(stat_gain_terms[stat]) - tiny_eps * total_items_expr
-                sub_problem.solve(pulp.HiGHS(msg=0))
+                sub_problem.solve(pulp.PULP_CBC_CMD(msg=0))
 
                 if pulp.LpStatus[sub_problem.status] != "Optimal":
                     return None, None, None
@@ -554,7 +554,7 @@ class ResistanceOptimizer:
                         )
                         - normalized_eps * total_items_expr
                     )
-                    sub_problem.solve(pulp.HiGHS(msg=0))
+                    sub_problem.solve(pulp.PULP_CBC_CMD(msg=0))
 
                     if pulp.LpStatus[sub_problem.status] != "Optimal":
                         return None, None, None
