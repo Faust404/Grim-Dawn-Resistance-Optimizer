@@ -1,12 +1,11 @@
 import os
 import sys
+from icecream import ic
 
 from flask import Flask, jsonify, render_template, request, send_from_directory
 
 sys.path.append(".")  # Adjust path to import ResistanceOptimizer module
-# from src.resistance_optimizer import ResistanceOptimizer
-from src.resistance_optimizer_new import ResistanceOptimizer
-# from src.resistance_optimizer_test import ResistanceOptimizer
+from src.resistance_optimizer import ResistanceOptimizer
 
 from src.gd_save import connect_db
 from src.gd_save.gdc_reader import parse_save
