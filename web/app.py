@@ -1,12 +1,27 @@
 import os
 import sys
 
-from flask import Flask, render_template, request, send_from_directory
+from flask import Flask, jsonify, render_template, request, send_from_directory
 
 sys.path.append(".")  # Adjust path to import ResistanceOptimizer module
-from src.resistance_optimizer import ResistanceOptimizer
+# from src.resistance_optimizer import ResistanceOptimizer
+from src.resistance_optimizer_new import ResistanceOptimizer
+# from src.resistance_optimizer_test import ResistanceOptimizer
+
+from src.gd_save import connect_db
+from src.gd_save.gdc_reader import parse_save
+from src.gd_save.process_save import process_save
+from src.gd_save.get_character_resists import get_character_resists
 
 app = Flask(__name__)
+# Uploaded saves are parsed in memory; 16 MB comfortably covers real player.gdc
+# files (typically <= 2 MB) while bounding memory.
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+
+
+@app.errorhandler(413)
+def _too_large(_e):
+    return jsonify({'error': 'Save file too large (max 16 MB).'}), 413
 
 # Serve CSV files from sibling 'data' folder
 @app.route('/data/<path:filename>')
@@ -14,6 +29,50 @@ def custom_static(filename):
     # Adjust the path below to the absolute or relative path to your 'data' folder
     data_folder = os.path.abspath(os.path.join(app.root_path, '..', 'data'))
     return send_from_directory(data_folder, filename)
+
+@app.route('/upload-save', methods=['POST'])
+def upload_save():
+    """Parse an uploaded player.gdc through the gd_save pipeline and return
+    the values needed to pre-fill the optimizer form: faction standings,
+    current resistances, occupied component/augment slots and level.
+
+    Pipeline order: parse_save (bytes -> parsed dict) -> process_save (skill
+    bonuses + cleanup, mutates the dict in place) -> get_character_resists
+    (KEEP-filtered resist dict). The bytes never touch disk.
+    """
+    upload = request.files.get('save_file')
+    if upload is None or not upload.filename:
+        return jsonify({'error': 'No save file uploaded.'}), 400
+    data = upload.read()  # capped by MAX_CONTENT_LENGTH
+    try:
+        save = parse_save(data)  # pure; raises ValueError on bad data
+    except ValueError as exc:
+        return jsonify({'error': f'Not a valid Grim Dawn save: {exc}'}), 400
+    try:
+        conn = connect_db()
+        try:
+            process_save(conn, save)  # mutates save in place
+            stats = get_character_resists(conn, save)
+            # Elemental resistance is a combined stat in Grim Dawn: the
+            # character's true fire/cold/lightning resists are the specific
+            # values PLUS the elemental value. Split it equally into the three
+            # before the UI pre-fills them.
+            elem = stats.get('defensiveElementalResistance') or 0
+            for key in ('defensiveFire', 'defensiveCold', 'defensiveLightning'):
+                stats[key] = (stats.get(key) or 0) + elem
+        finally:
+            conn.close()
+    except ValueError as exc:  # skill arithmetic mismatch etc.
+        return jsonify({'error': f'Could not process save: {exc}'}), 422
+    return jsonify({
+        'character': save['character'],
+        'level': save['level'],
+        'weaponMode': save['weaponMode'],
+        'factions': save['factions'],
+        'stats': stats,      # KEEP dict; defensiveLife is the vitality resist
+        'state': save['state'],      # per-slot {comp, aug} — True = slot free
+        'summary': save['summary'],  # {free_comp, free_aug}
+    })
 
 @app.route("/", methods=["GET", "POST"])
 def index():

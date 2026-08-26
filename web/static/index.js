@@ -416,6 +416,80 @@ function loadState() {
     }
 }
 
+// SAVE UPLOAD — backend keys -> UI names (parse_save -> form pre-fill)
+const SAVE_SLOT_TO_UI = {
+    head: 'head', chest: 'chest', shoulders: 'shoulder', hands: 'hand',
+    feet: 'foot', legs: 'legs', waist: 'belt', amulet: 'amulet',
+    ring1: 'ring1', ring2: 'ring2', medal: 'medal',
+    mainhand: 'weapon', offhand: 'offhand-shield'   // relic: no UI slot
+};
+const SAVE_RESIST_TO_INPUT = {
+    defensiveFire: 'current-fire', defensiveCold: 'current-cold',
+    defensiveLightning: 'current-lightning', defensivePoison: 'current-poison',
+    defensivePierce: 'current-pierce', defensiveBleeding: 'current-bleeding',
+    defensiveLife: 'current-vitality',   // defensiveLife IS the vitality resist
+    defensiveAether: 'current-aether', defensiveChaos: 'current-chaos'
+};
+// Explicit backend-name -> select map: the UI's display labels differ from the
+// parser's names for three factions (Death's Vigil / Black Legion / Malmouth),
+// so a label-based lookup would silently skip them.
+const SAVE_FACTION_TO_SELECT = {
+    "Devil's Crossing": 'standing-crossing',
+    'Rovers': 'standing-rovers',
+    'Homestead': 'standing-homestead',
+    "Kymon's Chosen": 'standing-kymon',
+    "Order of Death's Vigil": 'standing-order',
+    'The Black Legion': 'standing-black-legion',
+    'The Outcast': 'standing-outcast',
+    'Coven of Ugdenbog': 'standing-coven',
+    'Barrowholm': 'standing-barrowholm',
+    'Malmouth Resistance': 'standing-malmouth',
+    'Cult of Bysmiel': 'standing-bysmiel',
+    'Cult of Dreeg': 'standing-dreeg',
+    'Cult of Solael': 'standing-solael',
+    'Kurn': 'standing-kurn'
+};
+const SAVE_TIER_OPTIONS = ['friendly', 'respected', 'honored', 'revered'];
+
+function applySaveToForm(data) {
+    const levelEl = document.getElementById('char-level');
+    if (levelEl && data.level) levelEl.value = data.level;
+
+    for (const [saveStat, inputName] of Object.entries(SAVE_RESIST_TO_INPUT)) {
+        const input = document.querySelector(`#resistances-section input[name="${inputName}"]`);
+        if (input && data.stats[saveStat] !== undefined)
+            input.value = Number(data.stats[saveStat]) || 0;
+    }
+
+    // Armor absorption: the save carries the raw defensiveAbsorptionModifier
+    // (% bonus on the 70% base), so the field shows 70 * (1 + mod/100),
+    // clamped to the field's 50-100 range.
+    const absEl = document.getElementById('armor-abs-value');
+    if (absEl && data.stats.defensiveAbsorptionModifier !== undefined) {
+        const pct = 70 * (1 + (Number(data.stats.defensiveAbsorptionModifier) || 0) / 100);
+        absEl.value = Math.min(100, Math.max(50, Math.round(pct)));
+    }
+
+    for (const [facName, slug] of Object.entries(SAVE_FACTION_TO_SELECT)) {
+        const tier = (data.factions[facName] || '').toLowerCase();
+        // Hostile/Neutral standings have no dropdown option — default them to Friendly
+        const sel = document.querySelector(`#faction-dropdowns-section select[name="${slug}"]`);
+        if (!sel) continue;
+        const value = SAVE_TIER_OPTIONS.includes(tier) ? tier : 'friendly';
+        if ([...sel.options].some(o => o.value === value)) sel.value = value;
+    }
+
+    for (const [slot, ui] of Object.entries(SAVE_SLOT_TO_UI)) {
+        const st = data.state[slot];
+        if (!st) continue;
+        const comp = document.querySelector(`#component-slots-section input[name="component-${ui}"]`);
+        const aug = document.querySelector(`#augment-slots-section input[name="augment-${ui}"]`);
+        if (comp) comp.checked = !st.comp;   // checked = blocked = slot not free
+        if (aug) aug.checked = !st.aug;
+    }
+    saveState();   // persist like every other change on the page
+}
+
 
 // RESET ALL
 function resetAllFields() {
@@ -426,6 +500,14 @@ function resetAllFields() {
     localStorage.removeItem('grimDawnOptimizerForm');
     localStorage.removeItem('activeTab');
     localStorage.removeItem('scrollPositions');
+
+    // Clear the save-upload status banner (hidden while empty via :empty).
+    // Drop the i18n tag too, or the next re-translation pass resurrects it.
+    const uploadStatus = document.getElementById('upload-status');
+    if (uploadStatus) {
+        uploadStatus.textContent = '';
+        uploadStatus.removeAttribute('data-language-Tag-And-Source-EN');
+    }
 
     if (componentChoices) {
         componentChoices.removeActiveItems();
@@ -633,6 +715,46 @@ document.addEventListener('DOMContentLoaded', function () {
             resetBtn.addEventListener('click', resetAllFields);
         } else {
             console.error('Reset All button not found');
+        }
+
+        // UPLOAD SAVE — read player.gdc, pre-fill the whole form from it
+        const uploadBtn = document.getElementById('upload-save-btn');
+        const fileInput = document.getElementById('save-file-input');
+        const statusEl = document.getElementById('upload-status');
+
+        function setUploadStatus(text, isError) {
+            if (!statusEl) return;
+            statusEl.textContent = text;
+            statusEl.style.color = isError ? '#ff6b6b' : '#8fd47e';
+            statusEl.setAttribute('data-language-Tag-And-Source-EN', text);
+            if (typeof updateWebLocalizedText === 'function') updateWebLocalizedText();
+        }
+
+        if (uploadBtn && fileInput) {
+            uploadBtn.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', () => {
+                const file = fileInput.files[0];
+                if (!file) return;
+                const fd = new FormData();
+                fd.append('save_file', file);
+                fileInput.value = '';   // allow re-selecting the same file
+                setUploadStatus('Uploading save...', false);
+                fetch('/upload-save', { method: 'POST', body: fd })
+                    .then(resp => resp.json().catch(() => ({})).then(body => ({ resp, body })))
+                    .then(({ resp, body }) => {
+                        if (!resp.ok) {
+                            throw new Error(body.error || ('Upload failed (' + resp.status + ')'));
+                        }
+                        applySaveToForm(body);
+                        setUploadStatus(
+                            `Imported ${body.character} (Lv ${body.level}) — ${body.summary.free_comp} comp / ${body.summary.free_aug} aug slots free`,
+                            false
+                        );
+                    })
+                    .catch(err => setUploadStatus(err.message, true));
+            });
+        } else {
+            console.error('Upload Save elements not found');
         }
     });
 });

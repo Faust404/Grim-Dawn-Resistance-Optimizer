@@ -3,6 +3,8 @@
 <div class="language-switcher">
     <div class="top-right-actions">
         <button type="button" id="reset-all-btn" class="reset-btn">Reset All</button>
+        <button type="button" id="upload-save-btn" class="reset-btn">Upload Save</button>
+        <input type="file" id="save-file-input" accept=".gdc" style="display:none">
         <div class="language-dropdown">
             <button class="language-button" id="languageButton">Language</button>
             <div class="language-dropdown-content" id="languageDropdown">
@@ -12,6 +14,9 @@
         </div>
     </div>
 </div>
+
+<!-- 上传状态提示：居中悬浮在页面顶部标题上方 -->
+<div id="upload-status"></div>
 
 <script>
     //Initialization Language
@@ -82,18 +87,14 @@
             const sourceText = element.getAttribute('data-language-Tag-And-Source-EN');
             let textNode = Array.from(element.childNodes).find(node => node.nodeType === Node.TEXT_NODE);
             let translation = sourceText;
-            if (language === 'en') {
-                if (textNode) {
-                    textNode.textContent = sourceText;
-                } else if (sourceText) {
-                    element.appendChild(document.createTextNode(sourceText));
-                }
-            } else {
+            if (language !== 'en') {
                 translation = webTranslations[sourceText] || sourceText;
             }
             if (textNode) {
                 textNode.textContent = translation;
             } else if (translation) {
+                // Append exactly once — the old code also appended inside the
+                // 'en' branch above, doubling text on freshly cleared elements.
                 element.appendChild(document.createTextNode(translation));
             }
         });

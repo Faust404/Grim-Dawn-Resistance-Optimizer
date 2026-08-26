@@ -4,3 +4,6 @@ __pycache__/
 
 # Ignore the test directory
 test/
+
+# Decompressed artifact of src/gd_save/records.db.gz (514 MB, extracted at runtime)
+src/gd_save/records.db

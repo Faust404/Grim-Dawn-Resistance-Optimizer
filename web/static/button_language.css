@@ -26,6 +26,7 @@
     border-radius: 9px;
     font-size: 0.95em;
     font-weight: 600;
+    white-space: nowrap; /* keep "Upload Save" / "Reset All" on one line */
     cursor: pointer;
     transition: background 0.18s, transform 0.18s, border-color 0.18s;
     box-shadow: none;
@@ -100,4 +101,27 @@
 .language-option:hover {
     background: var(--table-row-even);
     color: var(--accent-green);
+}
+
+/* 上传存档状态提示 — 居中悬浮在页面顶部 (标题上方) */
+#upload-status {
+    position: fixed;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2000;
+    font-size: 0.9em;
+    color: var(--input-fg);
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 9px;
+    padding: 8px 18px;
+    max-width: min(90vw, 560px);
+    text-align: center;
+    box-shadow: 0 8px 32px 0 rgba(22, 24, 37, 0.42);
+}
+
+/* 初始为空时不显示悬浮条 */
+#upload-status:empty {
+    display: none;
 }
